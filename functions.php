@@ -89,6 +89,7 @@ function custom_override_checkout_fields($fields) {
    return $fields;
 }
 
+//EP month-breaker settingi
 
 define('JET_ENGINE_BREAK_BY_FIELD' , true);
 define('JET_ENGINE_BREAK_BY_QUERY_ID' , 'break_months');
