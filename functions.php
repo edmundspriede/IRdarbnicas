@@ -44,7 +44,7 @@ function formbuilder_add_to_cart($params) {
  
     if (isset($params[4]['jfb_form_data']['dalibnieku_dati'])) {
         
-             $cartdata['dalibnieki_serial'] = serialize( $params[4]['jfb_form_data']['dalibnieku_dati']);
+             $cartdata['dalibnieki_serial'] = json_encode( $params[4]['jfb_form_data']['dalibnieku_dati']);
              
              $dalibnieki = '';
              foreach($params[4]['jfb_form_data']['dalibnieku_dati'] as $k => $v) {
@@ -104,3 +104,54 @@ function formbuilder_checkout_create_order_line_item( $item, $cart_item_key, $va
  }
 }
 add_action( 'woocommerce_checkout_create_order_line_item', 'formbuilder_checkout_create_order_line_item', 10, 4 );
+
+function ir_webhook_http_args($http_args , $arg, $id){
+  
+  return array_merge($http_args, array('sslverify'   => false));
+}
+
+add_action( 'woocommerce_webhook_http_args', 'ir_webhook_http_args', 10, 3 );
+
+add_action('wp' , 'product_view_counter');
+function product_view_counter() {
+ 
+  global $post;
+ if ( is_product() ) {
+     $meta = get_post_meta( $post->ID, 'skatits', TRUE );
+     $meta = ($meta) ? $meta + 1 : 1; 
+     update_post_meta( $post->ID, 'skatits', $meta );
+ }
+}
+
+function allow_unsafe_urls ( $args ) {
+       $args['reject_unsafe_urls'] = false;
+       return $args;
+    } ;
+
+add_filter( 'http_request_args', 'allow_unsafe_urls' );
+
+
+function register_invoiced_order_status() {
+   register_post_status( 'wc-invoiced', array(
+       'label'                     => 'Invoiced',
+       'public'                    => true,
+       'show_in_admin_status_list' => true,
+       'show_in_admin_all_list'    => true,
+       'exclude_from_search'       => false
+       
+   ) );
+}
+add_action( 'init', 'register_invoiced_order_status' );
+
+
+function add_invoiced_to_order_statuses( $order_statuses ) {
+   $new_order_statuses = array();
+   foreach ( $order_statuses as $key => $status ) {
+       $new_order_statuses[ $key ] = $status;
+       if ( 'wc-processing' === $key ) {
+           $new_order_statuses['wc-invoiced'] = 'Invoiced';
+       }
+   }
+   return $new_order_statuses;
+}
+add_filter( 'wc_order_statuses', 'add_invoiced_to_order_statuses' );
