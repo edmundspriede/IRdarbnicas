@@ -1,0 +1,952 @@
+{
+  "name": "IR API create invoice service",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "= https://staging.veikals.ir.lv/wp-json/wc/v3/orders/{{ $json.order_nr }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "d9447b35-6929-4eae-85df-207a518c71bb",
+      "name": "order",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        -1320,
+        460
+      ],
+      "notesInFlow": true,
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "9",
+          "name": "IR darbnica"
+        }
+      },
+      "notes": "READ ORDER"
+    },
+    {
+      "parameters": {},
+      "id": "86476733-1eea-46fc-b19f-1412b49fa443",
+      "name": "When clicking \"Execute Workflow\"",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1440,
+        760
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://irekini.lv/api.php?r=invoices/invoice/add-invoice-item&access-token=TVPlsEZjdCj--B2-rK-SKDrZPqU5_ikk&cId=16779&invoiceId={{ $json.body.id }}&calculatedTotal={{ $('order').item.json.body.total }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "=\n {{ JSON.stringify($json.items_) }}",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "8299d934-1284-4170-95cb-e2e370194987",
+      "name": "HTTP Request4",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        180,
+        920
+      ],
+      "notesInFlow": true,
+      "notes": "POST items"
+    },
+    {
+      "parameters": {
+        "jsCode": "\n\nitems[0].binary.data.fileName = items[0].json[\"headers\"][\"content-filename\"];\n\nreturn items;"
+      },
+      "id": "9781ea77-ca5e-43f6-91cf-461af98b583c",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        60,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://irekini.lv/api.php?r=invoices/invoice/attach-label&access-token=TVPlsEZjdCj--B2-rK-SKDrZPqU5_ikk&cId=16779&&invoiceId={{ $json[\"body\"][\"id\"] }}&labelDefId=74\n\n",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "4295bc9c-54bb-4191-bbed-e3e637f2087e",
+      "name": "invoice_label",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        -260,
+        480
+      ],
+      "notesInFlow": true,
+      "executeOnce": true,
+      "continueOnFail": true,
+      "notes": "LABEL API"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://irekini.lv/api.php?r=invoices/invoice/create-invoice&access-token=TVPlsEZjdCj--B2-rK-SKDrZPqU5_ikk&cId=16779&document_id=319\n\n",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"InvInvoiceForm\": {\n    \n    \"doc_date\": \"{{$('order').item.json.body.date_created_gmt}}\",\n    \"partner_id\": \"{{ $('Start').item.json.customer_id}}\",\n    \"currency_id\": \"1\",\n    \"payment_type\": \"{{ $('Start').item.json.payment_method}}\",\n    \"additional_info\" : {{ JSON.stringify($('Set Additional').item.json.payment)  }}\n}\n}",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "8bb3cda5-cb5b-4cde-8eb3-7f08f25bb903",
+      "name": "invoice_new",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        -560,
+        480
+      ],
+      "notesInFlow": true,
+      "executeOnce": true,
+      "continueOnFail": true,
+      "notes": "POST new invoice advance"
+    },
+    {
+      "parameters": {
+        "operation": "aggregateItems",
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "items_"
+      },
+      "id": "3e5536b0-df36-4661-8daf-feab56f2f4fd",
+      "name": "items",
+      "type": "n8n-nodes-base.itemLists",
+      "typeVersion": 2.1,
+      "position": [
+        -240,
+        920
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByPosition",
+        "options": {}
+      },
+      "id": "ae36b54d-4292-4c4e-b435-e579c1941b17",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [
+        -200,
+        740
+      ]
+    },
+    {
+      "parameters": {
+        "url": "= https://staging.veikals.ir.lv/wp-json/wc/v3/products/{{$json.product_id}} ",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "a08738d7-a4ac-463d-b83b-f47bc1ad1354",
+      "name": "product",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        -820,
+        920
+      ],
+      "notesInFlow": true,
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "9",
+          "name": "IR darbnica"
+        }
+      },
+      "notes": "READ PRODUCT"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "body.line_items",
+        "options": {}
+      },
+      "id": "a9699663-afcf-468f-bbe6-6aeab7794a64",
+      "name": "itemlists",
+      "type": "n8n-nodes-base.itemLists",
+      "typeVersion": 2.1,
+      "position": [
+        -1180,
+        920
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "formatDate",
+        "date": "={{ $json.dateformated }}",
+        "format": "custom",
+        "customFormat": "dd.MM.yyyy",
+        "options": {}
+      },
+      "id": "be5180dd-fbd5-4872-ba8b-b1c2844fe751",
+      "name": "Date & Time",
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        -620,
+        920
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Add a new field called 'myNewField' to the JSON of the item\nvar memberstring = \"\";\nvar members = JSON.parse($input.item.json.meta_data[0][\"value\"]);\nif (Array.isArray(members)) {\n\n    for (member of members) {\n        memberstring = memberstring + member[\"vards_uzvards\"] +  ' ; ' ;\n        memberstring = memberstring + member[\"epasts\"] +  ' ; ' ;\n        memberstring = memberstring + '\\n';\n        console.log(member);\n    }\n}\n\n$input.item.json.members = memberstring;\n\nreturn $input.item;"
+      },
+      "id": "c5e1ac96-c3e8-40f1-8de7-b350c94a4e33",
+      "name": "Members",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1020,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "name",
+              "value": "=\n{{ $('itemlists').item.json[\"name\"] }}\nDatums: {{ $('Date & Time').item.json[\"formattedDate\"] }} \nDalībnieki: {{ $('Members').item.json.members }}"
+            },
+            {
+              "name": "count",
+              "value": "={{ parseInt($('itemlists').item.json[\"quantity\"]) }}"
+            },
+            {
+              "name": "vat_id",
+              "value": "1"
+            },
+            {
+              "name": "unit_id",
+              "value": "2"
+            }
+          ],
+          "number": [
+            {
+              "name": "unit_price",
+              "value": "={{ $('itemlists').item.json[\"subtotal\"] / parseInt($('itemlists').item.json[\"quantity\"]) }}"
+            }
+          ]
+        },
+        "options": {
+          "dotNotation": false
+        }
+      },
+      "id": "5010bb9b-98a4-4d18-b64f-bc00657a5eef",
+      "name": "Set2",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        -440,
+        920
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Add a new field called 'myNewField' to the JSON of the item\n  var stringemail = '';\n  for (i of item.json.items_) {\n       stringemail = stringemail + i.name + \"<br />\";\n  }\n\n  item.json.stringemail = stringemail;\n\nreturn $input.item;"
+      },
+      "id": "938965bf-0c78-493f-9203-5de3136564f0",
+      "name": "Stringemail",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -60,
+        1060
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Add a new field called 'myNewField' to the JSON of the item\n  var dateformated = '';\n  for (meta of item.json.body.meta_data) {\n       if (meta['key'] == 'datums')  item.json.dateformated = meta['value']  ;\n  }\n\n \nreturn $input.item;"
+      },
+      "id": "d93f7bb2-08f1-42cc-af81-208e0a07c199",
+      "name": "Stringemail1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -680,
+        1100
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "0a8bc782-c857-4e2f-aa5d-c0d4d2f05a24",
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1560,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $('order').item.json.body.payment_method }}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "bacs"
+            },
+            {
+              "value2": "everypay",
+              "output": 1
+            }
+          ]
+        },
+        "fallbackOutput": 3
+      },
+      "id": "f2f4902e-4ba1-417d-9335-f50a33d81b8b",
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        460,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "n8n@system.weberp.lv",
+        "toEmail": "edmunds@kls.lv",
+        "subject": "Jauns pasūtījums CITS MEDIJS NOTIKUMI (ar rēķinu)",
+        "emailFormat": "html",
+        "html": "=<style>\np {padding: 10px; }\n</style>\n\n<div class=\"logo\" style=\"width:250px;\" >\n    <img src=\"https://staging.veikals.ir.lv/wp-content/uploads/2023/09/Ir-Darbnicas_logotips_horizontals_RGB.svg\">\n</div>   \n<br />\n<div><h3>IR DARBNĪCAS</h3></DIV>\n\n<div>\n<p>\nLabdien!\n<br /><br />\nMēs esam saņēmuši Jūsu pieteikumu dalībai darbnīcā: \n<br /><br />\n{{ $('Stringemail').item.json[\"stringemail\"] }}\n<br /><br />\nJūsu pasūtījums Nr. {{ $('order').item.json[\"body\"][\"id\"] }}\n</p>\n</div>\n\n<div>\n<p>\nPielikumā ir dalības maksas avansa rēķins.\nMaksājot ar bankas pārskaitījumu, lūdzu, norādiet rēķina numuru!\n</p>\n<p>\nPaldies par Jūsu izvēli!\n</p>\n<p>\nSirsnīgi,\nIR Notikumi komanda\n</p>\n</div>\n<div><p>\nŠis ir automātisks e-pasts, uz to nav nepieciešams atbildēt. Jautājumu gadījumā, lūdzu, sazinieties ar mums pa tālr.: <a href=3D\"tel:27734907\" style=3D\"color:#202020;font-weight=\n:normal;text-decoration:underline\" target=3D\"_blank\">27734907</a> vai e-pastu: <a href=3D\"mailto:info@ir.lv\" style=3D\"color:#202020;font-weight:normal=;text-decoration:underline\" target=3D\"_blank\">info@ir.lv</a>\n</p>\n</div>\n",
+        "options": {
+          "attachments": "=data",
+          "ccEmail": "="
+        }
+      },
+      "id": "bb1a0ee3-66ab-4d28-ae98-22e849670c6d",
+      "name": "Admin email Invoice",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [
+        800,
+        300
+      ],
+      "credentials": {
+        "smtp": {
+          "id": "7",
+          "name": "System Weberp"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "n8n@system.weberp.lv",
+        "toEmail": "={{ $('order').item.json.body.billing.email }}",
+        "subject": "Jūsu pasūtījums IR NOTIKUMI (Cits Medijs AS)",
+        "emailFormat": "html",
+        "html": "=<style>\np {padding: 10px; }\n</style>\n\n<div class=\"logo\" style=\"width:250px;\" >\n    <img src=\"https://staging.veikals.ir.lv/wp-content/uploads/2023/09/Ir-Darbnicas_logotips_horizontals_RGB.svg\">\n</div>   \n<br />\n<div><h3>IR DARBNĪCAS</h3></DIV>\n\n<div>\n<p>\nLabdien!\n<br /><br />\nMēs esam saņēmuši Jūsu pieteikumu dalībai darbnīcā: \n<br /><br />\n{{ $('Stringemail').item.json[\"stringemail\"] }}\n<br /><br />\n\n</p>\n</div>\n\n<div>\n<p>\nPielikumā ir dalības maksas avansa rēķins.\nMaksājot ar bankas pārskaitījumu, lūdzu, norādiet rēķina numuru!\n</p>\n<p>\nPaldies par Jūsu izvēli! <br/>\nSirsnīgi,\nIR Notikumi komanda\n</p>\n</div>\n<div><p>\nŠis ir automātisks e-pasts, uz to nav nepieciešams atbildēt. Jautājumu gadījumā, lūdzu, sazinieties ar mums pa tālr.: <a href=3D\"tel:27734907\" style=3D\"color:#202020;font-weight=\n:normal;text-decoration:underline\" target=3D\"_blank\">27734907</a> vai e-pastu: <a href=3D\"mailto:info@ir.lv\" style=3D\"color:#202020;font-weight:normal=;text-decoration:underline\" target=3D\"_blank\">info@ir.lv</a>\n</p>\n</div>\n",
+        "options": {
+          "attachments": "=data"
+        }
+      },
+      "id": "ec4d9ad1-d395-4a51-8d55-2c0f3061b903",
+      "name": "Client Email Invoice",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [
+        800,
+        520
+      ],
+      "credentials": {
+        "smtp": {
+          "id": "7",
+          "name": "System Weberp"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "n8n@system.weberp.lv",
+        "toEmail": "edmunds@kls.lv",
+        "subject": "Jauns pasūtījums CITS MEDIJS NOTIKUMI (Everypay)",
+        "emailFormat": "html",
+        "html": "=<style>\np {padding: 10px; }\n</style>\n\n<div class=\"logo\" style=\"width:250px;\" >\n    <img src=\"https://staging.veikals.ir.lv/wp-content/uploads/2023/09/Ir-Darbnicas_logotips_horizontals_RGB.svg\">\n</div>   \n<br />\n<div><h3>IR DARBNĪCAS</h3></DIV>\n\n<div>\n<p>\nLabdien!\n<br /><br />\nMēs esam saņēmuši Jūsu maksājumu dalībai darbnīcā: \n<br /><br />\n{{ $('Stringemail').item.json[\"stringemail\"] }}\n<br /><br />\nJūsu pasūtījums Nr. {{ $('order').item.json[\"body\"][\"id\"] }}\n</p>\n</div>\n\n<div>\n<p>\nPielikumā sūtām gala rēķinu.\n\n</p>\n<p>\nPaldies par Jūsu izvēli!\n</p>\n<p>\nSirsnīgi,\nIR Notikumi komanda\n</p>\n</div>\n<div><p>\nŠis ir automātisks e-pasts, uz to nav nepieciešams atbildēt. Jautājumu gadījumā, lūdzu, sazinieties ar mums pa tālr.: <a href=3D\"tel:27734907\" style=3D\"color:#202020;font-weight=\n:normal;text-decoration:underline\" target=3D\"_blank\">27734907</a> vai e-pastu: <a href=3D\"mailto:info@ir.lv\" style=3D\"color:#202020;font-weight:normal=;text-decoration:underline\" target=3D\"_blank\">info@ir.lv</a>\n</p>\n</div>\n",
+        "options": {
+          "attachments": "=data",
+          "ccEmail": "="
+        }
+      },
+      "id": "1a4bbfca-2ba1-4118-99dd-95a3dc434b8c",
+      "name": "Admin email Everypay",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [
+        800,
+        740
+      ],
+      "credentials": {
+        "smtp": {
+          "id": "7",
+          "name": "System Weberp"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "n8n@system.weberp.lv",
+        "toEmail": "={{ $('order').item.json.body.billing.email }}",
+        "subject": "Jūsu pasūtījums IR NOTIKUMI (Cits Medijs AS)",
+        "emailFormat": "html",
+        "html": "=<style>\np {padding: 10px; }\n</style>\n\n<div class=\"logo\" style=\"width:250px;\" >\n    <img src=\"https://staging.veikals.ir.lv/wp-content/uploads/2023/09/Ir-Darbnicas_logotips_horizontals_RGB.svg\">\n</div>   \n<br />\n<div><h3>IR DARBNĪCAS</h3></DIV>\n\n<div>\n<p>\nLabdien!\n<br /><br />\nMēs esam saņēmuši maksājumu par dalību IR darbnīcā: \n<br /><br />\n{{ $('Stringemail').item.json[\"stringemail\"] }}\n<br /><br />\n\n</p>\n</div>\n\n<div>\n<p>\nPielikumā sūtām gala rēķinu.\n</p>\n<p>\nPaldies par Jūsu izvēli!<br />\nSirsnīgi,\nIR Notikumi komanda\n</p>\n</div>\n<div><p>\nŠis ir automātisks e-pasts, uz to nav nepieciešams atbildēt. Jautājumu gadījumā, lūdzu, sazinieties ar mums pa tālr.: <a href=3D\"tel:27734907\" style=3D\"color:#202020;font-weight=\n:normal;text-decoration:underline\" target=3D\"_blank\">27734907</a> vai e-pastu: <a href=3D\"mailto:info@ir.lv\" style=3D\"color:#202020;font-weight:normal=;text-decoration:underline\" target=3D\"_blank\">info@ir.lv</a>\n</p>\n</div>\n",
+        "options": {
+          "attachments": "=data"
+        }
+      },
+      "id": "4ebea68e-331c-4958-b8b3-0d3331ce9527",
+      "name": "Clinet Email Everypay",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [
+        800,
+        980
+      ],
+      "credentials": {
+        "smtp": {
+          "id": "7",
+          "name": "System Weberp"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "errorMessage": "Unknown payment method"
+      },
+      "id": "c18167b4-6f18-4085-b197-bfba36396071",
+      "name": "Stop and Error",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        580,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://irekini.lv/api.php?r=invoices/invoice/create-file-download&access-token=TVPlsEZjdCj--B2-rK-SKDrZPqU5_ikk&cId=16779&id={{ $('invoice_new').item.json.body.id }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n     \"format\": \"pdf\",\n     \"with_sign\": 0,\n     \"show_product_code\": 0,\n     \"version\" : \"{{ $('Set Additional').item.json.template }}\"\n}\n",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "4c49bf8d-cdbf-4d66-8f47-03d53e8129c6",
+      "name": "Create PDF",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        400,
+        660
+      ],
+      "notesInFlow": true,
+      "notes": "CREATE PDF\n"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $('Start').item.json.payment_method}}",
+              "value2": "Everypay"
+            }
+          ]
+        }
+      },
+      "id": "434db66b-e92f-422b-958b-2e82de4fe74b",
+      "name": "IF",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -960,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "payment"
+            },
+            {
+              "name": "template",
+              "value": "darbnica"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "118bc82f-17ab-41c3-ae47-8d2837af1a99",
+      "name": "Set3",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        -1180,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "additional",
+              "value": "=Pasūtījuma numurs: {{ $('order').item.json.body.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b18701a5-d60c-4749-9495-d1bd557a982d",
+      "name": "Set Additional",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        -760,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "payment",
+              "value": "Rēķins ir apmaksāts ar Everypay"
+            },
+            {
+              "name": "template",
+              "value": "everypay"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9ff92d75-39a9-4c73-a2e9-7aa48c2ffeb7",
+      "name": "Set Payment",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        -960,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $('Start').item.json.payment_method}}",
+              "value2": "Everypay"
+            }
+          ]
+        }
+      },
+      "id": "376c56af-d456-47a1-a4c6-b563b236bf37",
+      "name": "IF1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        480,
+        1260
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://irekini.lv/api.php?r=invoices/invoice/attach-advance&access-token=TVPlsEZjdCj--B2-rK-SKDrZPqU5_ikk&cId=16779&invoiceId={{ $('invoice_new').item.json.body.id }}\n",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "088844f1-a2b3-49dc-b24d-9c598a0e33df",
+      "name": "Attach Advance",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        460,
+        1040
+      ],
+      "notesInFlow": true,
+      "executeOnce": true,
+      "continueOnFail": true,
+      "notes": "POST new invoice advance"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "order": {
+      "main": [
+        [
+          {
+            "node": "itemlists",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Set3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request4": {
+      "main": [
+        [
+          {
+            "node": "IF1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "invoice_new": {
+      "main": [
+        [
+          {
+            "node": "invoice_label",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "items": {
+      "main": [
+        [
+          {
+            "node": "Stringemail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "product": {
+      "main": [
+        [
+          {
+            "node": "Stringemail1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "itemlists": {
+      "main": [
+        [
+          {
+            "node": "Members",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date & Time": {
+      "main": [
+        [
+          {
+            "node": "Set2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Members": {
+      "main": [
+        [
+          {
+            "node": "product",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set2": {
+      "main": [
+        [
+          {
+            "node": "items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stringemail": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Stringemail1": {
+      "main": [
+        [
+          {
+            "node": "Date & Time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Admin email Invoice",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Client Email Invoice",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Admin email Everypay",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Clinet Email Everypay",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        [
+          {
+            "node": "Stop and Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create PDF": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF": {
+      "main": [
+        [
+          {
+            "node": "Set Payment",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Additional",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set3": {
+      "main": [
+        [
+          {
+            "node": "IF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Additional": {
+      "main": [
+        [
+          {
+            "node": "invoice_new",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Payment": {
+      "main": [
+        [
+          {
+            "node": "Set Additional",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF1": {
+      "main": [
+        [
+          {
+            "node": "Attach Advance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Attach Advance": {
+      "main": [
+        [
+          {
+            "node": "Create PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveExecutionProgress": true,
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "BDx8NwbqJhGZxzLz",
+    "executionOrder": "v1"
+  },
+  "versionId": "fea8ed95-ff81-48d4-ae34-72ed477f1fc1",
+  "id": "N4bX7ICIlEDvI32H",
+  "meta": {
+    "instanceId": "0f064bae8ef402bc77bc2dfa9bf8ed7b60d49005d687ffae7941232c8a9d8d44"
+  },
+  "tags": [
+    {
+      "id": "4",
+      "createdAt": "2023-08-10T06:09:50.889Z",
+      "updatedAt": "2023-08-10T06:09:50.889Z",
+      "name": "IR"
+    }
+  ]
+}

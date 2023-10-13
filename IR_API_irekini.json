@@ -1,0 +1,691 @@
+{
+  "name": "IR API irekini",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "=https://irekini.lv/api.php?r=invoices/company/find-by-reg-code&access-token=TVPlsEZjdCj--B2-rK-SKDrZPqU5_ikk&cId=16779&regcode={{ $json.REGNR }}",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "5cf31a11-df28-48c9-b60c-42c3f4453d22",
+      "name": "HTTP Request5",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        160,
+        520
+      ],
+      "notesInFlow": true,
+      "notes": "CHECK CUSTOMER"
+    },
+    {
+      "parameters": {
+        "value1": "={{ $json.statusCode }}",
+        "rules": {
+          "rules": [
+            {
+              "operation": "equal",
+              "value2": 404
+            },
+            {
+              "operation": "equal",
+              "value2": 200,
+              "output": 1
+            },
+            {
+              "operation": "equal",
+              "value2": 500,
+              "output": 1
+            }
+          ]
+        }
+      },
+      "id": "d4ebd206-4112-47d2-bd42-c65841767817",
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        -340,
+        940
+      ],
+      "notesInFlow": true,
+      "notes": "CHECK NEW PARTNER"
+    },
+    {
+      "parameters": {
+        "url": "=https://irekini.lv/api.php?r=invoices/company/create-partner-company&access-token=TVPlsEZjdCj--B2-rK-SKDrZPqU5_ikk&cId=16779&type=person",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"D3cCompany\": {\n    \"regcode\": \"\",\n    \"name\": \"{{ $('Order').item.json[\"body\"][\"billing\"][\"first_name\"] }} {{ $('Order').item.json[\"body\"][\"billing\"][\"last_name\"] }}\",\n    \"is_vat_payer\":0,\n    \"withoutRegCode\":1,\n    \"sepa\": \"\",\n    \"address\": \"{{ $('Order').item.json[\"body\"][\"billing\"][\"address_1\"] }} {{ $('Order').item.json[\"body\"][\"billing\"][\"address_2\"]}} {{ $('Order').item.json[\"body\"][\"billing\"][\"city\"] }} {{ $('Order').item.json[\"body\"][\"billing\"][\"country\"] }}\"\n  },\n  \"InvCompany\": {\n    \"payment_term\": \"0\",\n    \"payment_term_in\": \"0\",\n    \"invoice_email\": \"{{ $('Order').item.json[\"body\"][\"billing\"][\"email\"] }}\"\n  }\n}",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "6834a353-1c38-4647-8ded-78f1012ca13e",
+      "name": "HTTP Request9",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        160,
+        720
+      ],
+      "notesInFlow": true,
+      "notes": "CREATE PARTNER"
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "number": [
+            {
+              "name": "order_nr",
+              "value": 3826
+            },
+            {
+              "name": "customer_id",
+              "value": "={{ $json.body.id }}"
+            }
+          ]
+        },
+        "options": {
+          "dotNotation": false
+        }
+      },
+      "id": "e6acc586-db82-4106-ad6b-454035ff9770",
+      "name": "Set1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        400,
+        660
+      ]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "number": [
+            {
+              "name": "order_nr",
+              "value": "={{ $('Webhook').item.json.body.id }}"
+            },
+            {
+              "name": "customer_id",
+              "value": "={{ $json.body.id }}"
+            }
+          ]
+        },
+        "options": {
+          "dotNotation": false
+        }
+      },
+      "id": "6e43a04a-0324-4378-be78-246a25cc4793",
+      "name": "Set2",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        400,
+        1000
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.weberp.lv/?r=atvertiedati/search/company&value={{ $('IF_legal').item.json.REGNR }}",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "a212e1ac-7dd9-446b-8e43-76fc9815f9b2",
+      "name": "HTTP Request2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        -80,
+        940
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://irekini.lv/api.php?r=invoices/company/create-partner-company&access-token=TVPlsEZjdCj--B2-rK-SKDrZPqU5_ikk&cId=16779",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"D3cCompany\": {\n    \"regcode\": \"{{ $json[\"body\"][\"select2\"][\"results\"][0][\"regcode\"] }}\",\n    \"sepa\": \"\",\n    \"name\": \"{{ $('Code').item.json[\"order_info\"][\"payment_company\"]}}\",\n    \"typeName\": \"SIA\",\n    \"address\": \"{{ $('Set').item.json[\"order_info\"][\"payment_address_1\"] }},{{ $('Set').item.json[\"order_info\"][\"payment_city\"] }},{{ $('Set').item.json[\"order_info\"][\"payment_country\"] }}\"\n  },\n  \"InvCompany\": {\n    \"payment_term\": \"0\",\n    \"payment_term_in\": \"0\",\n    \"invoice_email\": \"{{ $('Set').item.json[\"order_info\"][\"email\"] }}\"\n  }\n}\n",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "b96e57cf-3049-46d0-8376-062594dc1a8c",
+      "name": "HTTP Request6",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        160,
+        940
+      ],
+      "notesInFlow": true,
+      "notes": "POST NEW CUSTOMER"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.REGNR }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "a211e4f5-c678-4c08-b7b6-1de6af969c03",
+      "name": "IF_legal",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        540
+      ],
+      "notesInFlow": true,
+      "notes": "LEGAL COMPANY ?"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "01c7f401-2fc3-475c-add3-3c3158ffdf1a",
+        "options": {}
+      },
+      "id": "45c32eeb-f71b-40d9-b750-51de887b6168",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -1120,
+        320
+      ],
+      "webhookId": "01c7f401-2fc3-475c-add3-3c3158ffdf1a"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Add a new field called 'myNewField' to the JSON of the item\nvar regnr;\n\nfor (reg of $input.item.json.body.meta_data) {\n\n   if (reg['key'] == '_billing_pvn_numurs'  ) {\n       regnr = reg['value'];\n   }\n}\n\n\nif (regnr) { \n\n  regnr = regnr.trim();\n  len = regnr.length;\n\n  if (len == 13) {\n    $input.item.json.REGNR = regnr.substr(2,len);\n  } else  if (len == 11)  $input.item.json.REGNR = regnr;\n\n  \n   $input.item.json.LEN =len;\n}\n\n\n\nreturn $input.item;"
+      },
+      "id": "530ae95d-e1b4-4d8d-a2c4-a4d40e18e204",
+      "name": "Code1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        -540,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.body[\"payment_method\"] }}",
+              "value2": "bacs"
+            },
+            {
+              "value1": "={{ $json.body[\"status\"] }}",
+              "value2": "on-hold"
+            }
+          ]
+        }
+      },
+      "id": "336a55f5-3a15-4489-a389-37c15d91334d",
+      "name": "IF",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -780,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.body[\"payment_method\"] }}",
+              "value2": "everypay"
+            },
+            {
+              "value1": "={{ $json.body[\"status\"] }}",
+              "value2": "completed"
+            }
+          ]
+        }
+      },
+      "id": "8fccc17b-02cf-4ed7-8fb9-cfb4493b602e",
+      "name": "IF1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -540,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $('Order').item.json.body[\"payment_method\"] }}",
+              "value2": "bacs"
+            }
+          ]
+        }
+      },
+      "id": "e156a9fc-02e3-4341-a81d-1fe66f31887a",
+      "name": "IF2",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        440,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "url": "= https://staging.veikals.ir.lv/wp-json/wc/v3/orders/{{ $json.body.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "7ea7c5a6-4988-4bd8-a316-5c073730203c",
+      "name": "Order",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        -1000,
+        640
+      ],
+      "notesInFlow": true,
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "9",
+          "name": "IR darbnica"
+        }
+      },
+      "notes": "READ ORDER"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "payment_method",
+              "value": "Bank Transfer"
+            }
+          ]
+        },
+        "options": {
+          "dotNotation": false
+        }
+      },
+      "id": "61729f06-8d34-4207-9b52-97300a579b59",
+      "name": "Set",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        620,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "payment_method",
+              "value": "Everypay"
+            }
+          ]
+        },
+        "options": {
+          "dotNotation": false
+        }
+      },
+      "id": "fba323c8-5e47-4a39-87c1-f70a2be1ff25",
+      "name": "Set3",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        600,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": "34"
+      },
+      "id": "66d0044d-a563-4469-9415-f3043e7f62aa",
+      "name": "Avanss",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        900,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": "N4bX7ICIlEDvI32H"
+      },
+      "id": "3cee9600-fe13-436d-b1fb-22dc7ba01615",
+      "name": "Serviss",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        1140,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $('Order').item.json.body[\"payment_method\"] }}",
+              "value2": "everypay"
+            }
+          ]
+        }
+      },
+      "id": "02229e81-b1a1-46fb-a769-28808289431c",
+      "name": "IF3",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        960,
+        880
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTTP Request5": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request9": {
+      "main": [
+        [
+          {
+            "node": "Set1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request6": {
+      "main": [
+        [
+          {
+            "node": "Set2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF_legal": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request5",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set1": {
+      "main": [
+        [
+          {
+            "node": "IF2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "IF_legal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set2": {
+      "main": [
+        [
+          {
+            "node": "Avanss",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF1": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Order": {
+      "main": [
+        [
+          {
+            "node": "IF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF2": {
+      "main": [
+        [
+          {
+            "node": "Set",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set3": {
+      "main": [
+        [
+          {
+            "node": "Avanss",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set": {
+      "main": [
+        [
+          {
+            "node": "Avanss",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Avanss": {
+      "main": [
+        [
+          {
+            "node": "IF3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF3": {
+      "main": [
+        [
+          {
+            "node": "Serviss",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveExecutionProgress": true,
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "BDx8NwbqJhGZxzLz",
+    "timezone": "Europe/Riga",
+    "executionOrder": "v0"
+  },
+  "versionId": "214c59e3-f60a-4635-9870-b9b2486b4367",
+  "id": "33",
+  "meta": {
+    "instanceId": "0f064bae8ef402bc77bc2dfa9bf8ed7b60d49005d687ffae7941232c8a9d8d44"
+  },
+  "tags": [
+    {
+      "id": "4",
+      "createdAt": "2023-08-10T06:09:50.889Z",
+      "updatedAt": "2023-08-10T06:09:50.889Z",
+      "name": "IR"
+    }
+  ]
+}
