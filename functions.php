@@ -49,7 +49,7 @@ function formbuilder_add_to_cart($params) {
              $dalibnieki = '';
              foreach($params[4]['jfb_form_data']['dalibnieku_dati'] as $k => $v) {
              
-                   $dalibnieki .= implode(' ; ' , $v)."<br />";
+                   $dalibnieki .= implode('; ' , $v)."<br />";
              }
              
              $cartdata['dalibnieki'] = $dalibnieki;
@@ -58,8 +58,12 @@ function formbuilder_add_to_cart($params) {
    
     
     //EP pievienojam galveno produktu
-    
-    WC()->cart->add_to_cart($params[0], $params[4]['jfb_form_data']['skaits'] , 0, array(),$cartdata); 
+  
+    $product = wc_get_product($params[0]);
+    $variations = $product->get_available_variations();
+  
+       
+    WC()->cart->add_to_cart($params[0], $params[4]['jfb_form_data']['skaits'] , $variations[0]["variation_id"], array(),$cartdata); 
 
     //EP pievienojam upsell produktus
     
