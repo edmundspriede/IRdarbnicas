@@ -60,10 +60,14 @@ function formbuilder_add_to_cart($params) {
     //EP pievienojam galveno produktu
   
     $product = wc_get_product($params[0]);
-    $variations = $product->get_available_variations();
-  
-       
-    WC()->cart->add_to_cart($params[0], $params[4]['jfb_form_data']['skaits'] , $variations[0]["variation_id"], array(),$cartdata); 
+    if ($product->is_type('variable')) {
+      
+        $variations = $product->get_available_variations();
+        WC()->cart->add_to_cart($params[0], $params[4]['jfb_form_data']['skaits'] , $variations[0]["variation_id"], array(),$cartdata); 
+    } else {
+   
+        WC()->cart->add_to_cart($params[0], $params[4]['jfb_form_data']['skaits'] , 0 , array(),$cartdata); 
+    } 
 
     //EP pievienojam upsell produktus
     
@@ -159,3 +163,27 @@ function add_invoiced_to_order_statuses( $order_statuses ) {
    return $new_order_statuses;
 }
 add_filter( 'wc_order_statuses', 'add_invoiced_to_order_statuses' );
+
+
+//add_filter( 'woocommerce_is_attribute_in_product_name', '__return_false' );
+
+/**
+ * Removes the attribute from the product title, in the cart.
+ * 
+ * @return string
+ */
+function remove_variation_from_product_title( $title, $cart_item, $cart_item_key ) {
+	$_product = $cart_item['data'];
+	$product_permalink = apply_filters( 'woocommerce_cart_item_permalink', $_product->is_visible() ? $_product->get_permalink( $cart_item ) : '', $cart_item, $cart_item_key );
+
+	if ( $_product->is_type( 'variation' ) ) {
+		if ( ! $product_permalink ) {
+			return $_product->get_title();
+		} else {
+			return sprintf( '<a href="%s">%s</a>', esc_url( $product_permalink ), $_product->get_title() );
+		}
+	}
+
+	return $title;
+}
+add_filter( 'woocommerce_cart_item_name', 'remove_variation_from_product_title', 10, 3 );
