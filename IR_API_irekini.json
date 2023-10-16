@@ -52,8 +52,8 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 1,
       "position": [
-        -340,
-        940
+        -600,
+        1000
       ],
       "notesInFlow": true,
       "notes": "CHECK NEW PARTNER"
@@ -91,7 +91,7 @@
           "number": [
             {
               "name": "order_nr",
-              "value": 3826
+              "value": "={{ $('Webhook').item.json.body.id }}"
             },
             {
               "name": "customer_id",
@@ -136,59 +136,9 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 2,
       "position": [
-        400,
+        160,
         1000
       ]
-    },
-    {
-      "parameters": {
-        "url": "=https://api.weberp.lv/?r=atvertiedati/search/company&value={{ $('IF_legal').item.json.REGNR }}",
-        "options": {
-          "allowUnauthorizedCerts": true,
-          "response": {
-            "response": {
-              "fullResponse": true,
-              "neverError": true
-            }
-          }
-        }
-      },
-      "id": "a212e1ac-7dd9-446b-8e43-76fc9815f9b2",
-      "name": "HTTP Request2",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 3,
-      "position": [
-        -80,
-        940
-      ]
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "=https://irekini.lv/api.php?r=invoices/company/create-partner-company&access-token=TVPlsEZjdCj--B2-rK-SKDrZPqU5_ikk&cId=16779",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n  \"D3cCompany\": {\n    \"regcode\": \"{{ $json[\"body\"][\"select2\"][\"results\"][0][\"regcode\"] }}\",\n    \"sepa\": \"\",\n    \"name\": \"{{ $('Code').item.json[\"order_info\"][\"payment_company\"]}}\",\n    \"typeName\": \"SIA\",\n    \"address\": \"{{ $('Set').item.json[\"order_info\"][\"payment_address_1\"] }},{{ $('Set').item.json[\"order_info\"][\"payment_city\"] }},{{ $('Set').item.json[\"order_info\"][\"payment_country\"] }}\"\n  },\n  \"InvCompany\": {\n    \"payment_term\": \"0\",\n    \"payment_term_in\": \"0\",\n    \"invoice_email\": \"{{ $('Set').item.json[\"order_info\"][\"email\"] }}\"\n  }\n}\n",
-        "options": {
-          "allowUnauthorizedCerts": true,
-          "response": {
-            "response": {
-              "fullResponse": true,
-              "neverError": true
-            }
-          }
-        }
-      },
-      "id": "b96e57cf-3049-46d0-8376-062594dc1a8c",
-      "name": "HTTP Request6",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 3,
-      "position": [
-        160,
-        940
-      ],
-      "notesInFlow": true,
-      "notes": "POST NEW CUSTOMER"
     },
     {
       "parameters": {
@@ -238,8 +188,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 1,
       "position": [
-        -540,
-        320
+        -440,
+        340
       ]
     },
     {
@@ -249,10 +199,6 @@
             {
               "value1": "={{ $json.body[\"payment_method\"] }}",
               "value2": "bacs"
-            },
-            {
-              "value1": "={{ $json.body[\"status\"] }}",
-              "value2": "on-hold"
             }
           ]
         }
@@ -273,10 +219,6 @@
             {
               "value1": "={{ $json.body[\"payment_method\"] }}",
               "value2": "everypay"
-            },
-            {
-              "value1": "={{ $json.body[\"status\"] }}",
-              "value2": "completed"
             }
           ]
         }
@@ -286,8 +228,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
-        -540,
-        500
+        -680,
+        540
       ]
     },
     {
@@ -397,8 +339,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1,
       "position": [
-        900,
-        640
+        1060,
+        940
       ]
     },
     {
@@ -410,8 +352,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1,
       "position": [
-        1140,
-        640
+        1080,
+        600
       ]
     },
     {
@@ -430,8 +372,170 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
-        960,
-        880
+        860,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.body.status }}",
+              "operation": "equal",
+              "value2": 404
+            }
+          ]
+        }
+      },
+      "id": "4d103926-6926-485f-a5a7-4f6a26889ee5",
+      "name": "IF4",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -180,
+        840
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.weberp.lv/?r=atvertiedati/search/company&value={{ $('IF_legal').item.json.REGNR }}",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "a212e1ac-7dd9-446b-8e43-76fc9815f9b2",
+      "name": "urapi",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        -400,
+        780
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://irekini.lv/api.php?r=invoices/company/create-partner-company&access-token=TVPlsEZjdCj--B2-rK-SKDrZPqU5_ikk&cId=16779",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"D3cCompany\": {\n    \"regcode\": \"{{ $json[\"body\"][\"select2\"][\"results\"][0][\"regcode\"] }}\",\n    \"sepa\": \"\",\n    \"name\": \"{{ $('urapi').item.json.body.select2.results[0]['name'] + ' '+ $('urapi').item.json.body.select2.results[0]['type_name'] }}\",\n    \"typeName\": \"SIA\",\n    \"address\": \"\"\n  },\n  \"InvCompany\": {\n    \"payment_term\": \"0\",\n    \"payment_term_in\": \"0\",\n    \"invoice_email\": \"{{ $('Order').item.json[\"body\"][\"billing\"][\"email\"] }}\"\n  }\n}\n",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "7763090e-99c1-473a-b57c-c5fef331a570",
+      "name": "HTTP Request6",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        -60,
+        1120
+      ],
+      "notesInFlow": true,
+      "notes": "POST NEW CUSTOMER"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $('Order').item.json.body[\"payment_method\"] }}",
+              "value2": "bacs"
+            }
+          ]
+        }
+      },
+      "id": "4122a975-96dc-4181-810f-99a8508d3f00",
+      "name": "IF5",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        380,
+        1080
+      ]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "payment_method",
+              "value": "Bank Transfer"
+            }
+          ]
+        },
+        "options": {
+          "dotNotation": false
+        }
+      },
+      "id": "1c15e3e3-1b15-4279-bf35-0ca8a7aaa053",
+      "name": "Set4",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        580,
+        940
+      ]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "payment_method",
+              "value": "Everypay"
+            }
+          ]
+        },
+        "options": {
+          "dotNotation": false
+        }
+      },
+      "id": "92261786-50cf-4141-9cdf-8c24a7849422",
+      "name": "Set5",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        580,
+        1140
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.body[\"status\"] }}",
+              "value2": "pending"
+            },
+            {
+              "value1": "={{ $json.body[\"status\"] }}",
+              "value2": "completed"
+            }
+          ]
+        },
+        "combineOperation": "any"
+      },
+      "id": "1c7a6467-f0b1-4a94-b0e0-5cc984ee346c",
+      "name": "IF6",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        540
       ]
     }
   ],
@@ -452,7 +556,7 @@
       "main": [
         [
           {
-            "node": "HTTP Request2",
+            "node": "urapi",
             "type": "main",
             "index": 0
           }
@@ -471,28 +575,6 @@
         [
           {
             "node": "Set1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "HTTP Request2": {
-      "main": [
-        [
-          {
-            "node": "HTTP Request6",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "HTTP Request6": {
-      "main": [
-        [
-          {
-            "node": "Set2",
             "type": "main",
             "index": 0
           }
@@ -554,7 +636,7 @@
       "main": [
         [
           {
-            "node": "Avanss",
+            "node": "IF5",
             "type": "main",
             "index": 0
           }
@@ -583,7 +665,7 @@
       "main": [
         [
           {
-            "node": "Code1",
+            "node": "IF6",
             "type": "main",
             "index": 0
           }
@@ -623,7 +705,7 @@
       "main": [
         [
           {
-            "node": "Avanss",
+            "node": "IF3",
             "type": "main",
             "index": 0
           }
@@ -631,17 +713,6 @@
       ]
     },
     "Set": {
-      "main": [
-        [
-          {
-            "node": "Avanss",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Avanss": {
       "main": [
         [
           {
@@ -660,6 +731,104 @@
             "type": "main",
             "index": 0
           }
+        ],
+        [
+          {
+            "node": "Avanss",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF4": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request9",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "urapi": {
+      "main": [
+        [
+          {
+            "node": "IF4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request6": {
+      "main": [
+        [
+          {
+            "node": "Set2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF5": {
+      "main": [
+        [
+          {
+            "node": "Set4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set4": {
+      "main": [
+        [
+          {
+            "node": "IF3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set5": {
+      "main": [
+        [
+          {
+            "node": "IF3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF6": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
         ]
       ]
     }
@@ -675,7 +844,7 @@
     "timezone": "Europe/Riga",
     "executionOrder": "v0"
   },
-  "versionId": "214c59e3-f60a-4635-9870-b9b2486b4367",
+  "versionId": "fba82f90-ef26-4504-90aa-596cf5e5c989",
   "id": "33",
   "meta": {
     "instanceId": "0f064bae8ef402bc77bc2dfa9bf8ed7b60d49005d687ffae7941232c8a9d8d44"
