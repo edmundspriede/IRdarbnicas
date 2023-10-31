@@ -1,0 +1,357 @@
+{
+  "name": "Ir bookings",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "6f986707-620e-4602-9888-a6fb793e513e",
+      "name": "When clicking \"Execute Workflow\"",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -440,
+        120
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "= https://irdarbnicas.lv/wp-json/jet-rel/11",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n\t\"parent_id\": {{ $('Item Lists').item.json.product_id}},\n\t\"child_id\": {{ $json.body.id}},\n\t\"context\": \"child\",\n\t\"store_items_type\": \"update\"\n\n}",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "372ecae0-4458-4813-a05d-fbd09f664a6c",
+      "name": "Relation Prod",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        880,
+        280
+      ],
+      "notesInFlow": true,
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "ANe97BR4sIiNl0rE",
+          "name": "IR WP API"
+        }
+      },
+      "notes": "READ ORDER"
+    },
+    {
+      "parameters": {
+        "url": "= https://irdarbnicas.lv/wp-json/wc/v3/orders/{{ $json.body.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "24666d3d-2525-4a8b-a4b2-56cda8b9ae12",
+      "name": "Order1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        -180,
+        280
+      ],
+      "notesInFlow": true,
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "9",
+          "name": "IR darbnica"
+        }
+      },
+      "notes": "READ ORDER"
+    },
+    {
+      "parameters": {
+        "url": "= https://staging.veikals.ir.lv/wp-json/wp/v2/pieteikumi/",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "4b5551db-7f30-452a-a41b-f60baa9645e6",
+      "name": "Order2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        300,
+        20
+      ],
+      "notesInFlow": true,
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "ANe97BR4sIiNl0rE",
+          "name": "IR WP API"
+        }
+      },
+      "notes": "READ ORDER"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "= https://irdarbnicas.lv/wp-json/wp/v2/pieteikumi/",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n\n\"status\": \"draft\",\n\"type\": \"pieteikumi\",\n\"title\": \"{{ $json[\"participants\"][\"vards_uzvards\"] }}\",\n\"meta\": \n    {\n\n     \"vards\": \"{{ $json[\"participants\"][\"vards_uzvards\"] }}\",\n     \"epasts\":  \"{{ $json[\"participants\"][\"epasts\"] }}\",\n     \"telefons\":  \"{{ $json[\"participants\"][\"telefons\"] }}\",\n     \"statuss\": \"Nepabeigts\",\n     \"komentars\": \"testing\"\n\n     }\n}",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "38519f05-c853-4330-aec0-e3df7e2aa3cd",
+      "name": "New Booking",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        660,
+        280
+      ],
+      "notesInFlow": true,
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "ANe97BR4sIiNl0rE",
+          "name": "IR WP API"
+        }
+      },
+      "notes": "READ ORDER"
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "items",
+              "type": "arrayValue",
+              "arrayValue": "={{ $('Order1').item.json[\"body\"][\"line_items\"] }}"
+            }
+          ]
+        },
+        "include": "selected",
+        "includeFields": "body.id",
+        "options": {}
+      },
+      "id": "5b34c803-9232-4978-8c03-a77d479f8a6e",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.1,
+      "position": [
+        40,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "participants",
+              "type": "arrayValue",
+              "arrayValue": "={{ $json[\"items\"][0][\"meta_data\"][1][\"value\"] }}"
+            }
+          ]
+        },
+        "include": "selected",
+        "includeFields": "id, items[0].product_id",
+        "options": {}
+      },
+      "id": "e9afd86d-3034-4bf5-bbe0-d8748d8c7be0",
+      "name": "Edit Fields1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.1,
+      "position": [
+        260,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://staging.veikals.ir.lv/wp-json/jet-rel/11",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "a80302d7-4606-49f7-982e-961b7e7896fc",
+      "name": "Relation Prod1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        560,
+        520
+      ],
+      "notesInFlow": true,
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "ANe97BR4sIiNl0rE",
+          "name": "IR WP API"
+        }
+      },
+      "notes": "READ ORDER"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "participants",
+        "include": "selectedOtherFields",
+        "fieldsToInclude": "id, product_id",
+        "options": {}
+      },
+      "id": "a5d4a3ab-1081-4004-b929-41beb6d977b0",
+      "name": "Item Lists",
+      "type": "n8n-nodes-base.itemLists",
+      "typeVersion": 3,
+      "position": [
+        460,
+        280
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "1d30d579-08d3-4e18-a585-294c56198968",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        -420,
+        420
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking \"Execute Workflow\"": {
+      "main": [
+        [
+          {
+            "node": "Order1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Order1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Item Lists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New Booking": {
+      "main": [
+        [
+          {
+            "node": "Relation Prod",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Item Lists": {
+      "main": [
+        [
+          {
+            "node": "New Booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Order1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a8ab2354-8249-43ae-b315-b13b25c0c002",
+  "id": "CZCvhkb89DMedz94",
+  "meta": {
+    "instanceId": "0f064bae8ef402bc77bc2dfa9bf8ed7b60d49005d687ffae7941232c8a9d8d44"
+  },
+  "tags": [
+    {
+      "createdAt": "2023-08-10T06:09:50.889Z",
+      "updatedAt": "2023-08-10T06:09:50.889Z",
+      "id": "4",
+      "name": "IR"
+    }
+  ]
+}
