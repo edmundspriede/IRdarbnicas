@@ -47,33 +47,6 @@
     },
     {
       "parameters": {
-        "method": "POST",
-        "url": "=https://irekini.lv/api.php?r=invoices/invoice/add-invoice-item&access-token=TVPlsEZjdCj--B2-rK-SKDrZPqU5_ikk&cId=16779&invoiceId={{ $('invoice_new').item.json.body[\"id\"] }}&calculatedTotal={{ $('order').item.json.body.total }}",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "=\n {{ JSON.stringify($json.items_) }}",
-        "options": {
-          "allowUnauthorizedCerts": true,
-          "response": {
-            "response": {
-              "fullResponse": true
-            }
-          }
-        }
-      },
-      "id": "6c3142b0-d942-47c1-bfe9-c9e60de72a45",
-      "name": "HTTP Request4",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 3,
-      "position": [
-        180,
-        1120
-      ],
-      "notesInFlow": true,
-      "notes": "POST items"
-    },
-    {
-      "parameters": {
         "jsCode": "\n\nitems[0].binary.data.fileName = items[0].json[\"headers\"][\"content-filename\"];\n\nreturn items;"
       },
       "id": "9f54db51-3001-43a5-85d5-2be8e0c7e310",
@@ -115,10 +88,10 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://irekini.lv/api.php?r=invoices/invoice/create-invoice&access-token=TVPlsEZjdCj--B2-rK-SKDrZPqU5_ikk&cId=16779&document_id=317\n\n",
+        "url": "=https://irekini.lv/api.php?r=invoices/invoice/create-invoice&access-token=TVPlsEZjdCj--B2-rK-SKDrZPqU5_ikk&cId=16779&document_id=439\n\n",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"InvInvoiceForm\": {\n    \n    \"doc_date\": \"{{$('order').item.json.body.date_created_gmt}}\",\n    \"partner_id\": \"{{ $('Start').item.json.customer_id}}\",\n    \"currency_id\": \"1\",\n    \"payment_type\": \"{{ $('Start').item.json.payment_method}}\",\n    \"additional_info\" : \"\"\n}\n}",
+        "jsonBody": "={\n  \"InvInvoiceForm\": {\n    \n    \"doc_date\": \"{{$('order').item.json.body.date_created_gmt}}\",\n    \"partner_id\": \"{{ $('Start').item.json.customer_id}}\",\n    \"currency_id\": \"1\",\n    \"payment_type\": \"{{ $('Start').item.json.payment_method}}\",\n    \"additional_info\" : \"{{ $json.additional }}\"\n}\n}",
         "options": {
           "allowUnauthorizedCerts": true,
           "response": {
@@ -152,7 +125,7 @@
       "type": "n8n-nodes-base.itemLists",
       "typeVersion": 2.1,
       "position": [
-        -240,
+        20,
         920
       ]
     },
@@ -270,8 +243,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 2,
       "position": [
-        -440,
-        920
+        -240,
+        960
       ]
     },
     {
@@ -284,8 +257,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -60,
-        1060
+        -40,
+        1320
       ]
     },
     {
@@ -298,8 +271,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -680,
-        1100
+        -720,
+        1160
       ]
     },
     {
@@ -309,7 +282,7 @@
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1,
       "position": [
-        -1560,
+        -1720,
         460
       ]
     },
@@ -335,8 +308,8 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 1,
       "position": [
-        440,
-        640
+        480,
+        600
       ]
     },
     {
@@ -356,13 +329,13 @@
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2,
       "position": [
-        800,
-        300
+        820,
+        140
       ],
       "credentials": {
         "smtp": {
-          "id": "7",
-          "name": "System Weberp"
+          "id": "3qvvgK5rlEf1cqGI",
+          "name": "Google IR"
         }
       }
     },
@@ -382,8 +355,8 @@
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2,
       "position": [
-        800,
-        520
+        820,
+        320
       ],
       "credentials": {
         "smtp": {
@@ -428,8 +401,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
       "position": [
-        140,
-        420
+        200,
+        700
       ],
       "notesInFlow": true,
       "notes": "CREATE PDF\n"
@@ -451,7 +424,7 @@
       "typeVersion": 1,
       "position": [
         -960,
-        220
+        240
       ]
     },
     {
@@ -501,7 +474,7 @@
           "string": [
             {
               "name": "additional",
-              "value": "=Pasūtījuma numurs: {{ $('order').item.json.body.id }}"
+              "value": "={{ $('order').item.json.body.coupon_lines[0].code }}"
             }
           ]
         },
@@ -582,6 +555,55 @@
     },
     {
       "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "order_nr",
+              "value": "={{ $('Start').item.json.order_nr }}"
+            },
+            {
+              "name": "customer_id",
+              "value": "={{ $('Start').item.json.customer_id }}"
+            },
+            {
+              "name": "payment_method",
+              "value": "={{ $('Start').item.json.payment_method }}"
+            },
+            {
+              "name": "invoice_nr",
+              "value": "={{ $('invoice_new').item.json.body[\"id\"] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a369ac51-f890-4606-a3f5-f1938241729a",
+      "name": "Set4",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        700,
+        900
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "workflowId": "CZCvhkb89DMedz94"
+      },
+      "id": "bd453151-e5e5-472c-9e31-80dad605c0d8",
+      "name": "save participants",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        920,
+        1000
+      ]
+    },
+    {
+      "parameters": {
         "method": "POST",
         "url": "= https://irdarbnicas.lv/wp-json/wc/v3/orders/{{ $('order').item.json.body.id }}",
         "authentication": "genericCredentialType",
@@ -598,13 +620,13 @@
           }
         }
       },
-      "id": "ee00a00b-780e-47a7-8f95-c09ff0626539",
+      "id": "40b74cba-d985-461f-aec9-d4d4823e1d32",
       "name": "Invoiced Order",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
       "position": [
-        200,
-        760
+        -320,
+        240
       ],
       "notesInFlow": true,
       "credentials": {
@@ -614,6 +636,244 @@
         }
       },
       "notes": "READ ORDER"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $('order1').item.json.body.coupon_lines[0].code }}",
+              "value2": "irabonents"
+            }
+          ]
+        }
+      },
+      "id": "56c752bb-d731-4f9e-bc7b-41c88afe006c",
+      "name": "IF1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -460,
+        920
+      ]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "name",
+              "value": "=\n{{ $('itemlists').item.json[\"name\"] }}\nDatums: {{ $('Date & Time').item.json[\"formattedDate\"] }} \nDalībnieki: {{ $('Members').item.json.members }}"
+            },
+            {
+              "name": "count",
+              "value": "={{ parseInt($('itemlists').item.json[\"quantity\"]) }}"
+            },
+            {
+              "name": "vat_id",
+              "value": "1"
+            },
+            {
+              "name": "unit_id",
+              "value": "2"
+            },
+            {
+              "name": "discount",
+              "value": "20%"
+            }
+          ],
+          "number": [
+            {
+              "name": "unit_price",
+              "value": "={{ $('itemlists').item.json[\"subtotal\"] / parseInt($('itemlists').item.json[\"quantity\"]) }}"
+            }
+          ]
+        },
+        "options": {
+          "dotNotation": false
+        }
+      },
+      "id": "30f70d04-e8ea-46e5-82cf-4410f87d1afb",
+      "name": "Set5",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        -240,
+        780
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://irekini.lv/api.php?r=invoices/invoice/add-invoice-item&access-token=TVPlsEZjdCj--B2-rK-SKDrZPqU5_ikk&cId=16779&invoiceId={{ $('invoice_new').item.json.body[\"id\"] }}&calculatedTotal={{ $('order').item.json.body.total }}&isDiscount={{ $json.discount }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "=\n {{ JSON.stringify($json.items_) }}",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "5051e047-2291-41cc-9d24-d78e3e69393a",
+      "name": "HTTP Request4",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        220,
+        1140
+      ],
+      "notesInFlow": true,
+      "notes": "POST items"
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "discount",
+              "stringValue": "1"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1e13759b-c12c-4339-8d72-6938dcc4dbeb",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.2,
+      "position": [
+        -240,
+        1180
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $('order1').item.json.body.coupon_lines[0].code }}",
+              "value2": "irabonents"
+            }
+          ]
+        }
+      },
+      "id": "c34a5351-7430-41ff-9264-4ef7afdf77bf",
+      "name": "IF2",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -420,
+        1240
+      ]
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "discount",
+              "stringValue": "0"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "80900f14-84d4-4f42-a079-6f731ce8dd4b",
+      "name": "Edit Fields1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.2,
+      "position": [
+        -240,
+        1360
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "notikumi@ir.lv",
+        "toEmail": "edmunds@kls.lv",
+        "subject": "Jauns pasūtījums CITS MEDIJS NOTIKUMI (ar rēķinu)",
+        "emailFormat": "html",
+        "html": "=<style>\np {padding: 10px; }\n</style>\n\n<div class=\"logo\" style=\"width:250px;\" >\n    <img src=\"https://staging.veikals.ir.lv/wp-content/uploads/2023/09/Ir-Darbnicas_logotips_horizontals_RGB.svg\">\n</div>   \n<br />\n<div><h3>IR DARBNĪCAS</h3></DIV>\n\n<div>\n<p>\nLabdien!\n<br /><br />\nMēs esam saņēmuši Jūsu pieteikumu dalībai darbnīcā: \n\n</p>\n</div>\n\n<div>\n<p>\nPielikumā ir dalības maksas avansa rēķins.\nMaksājot ar bankas pārskaitījumu, lūdzu, norādiet rēķina numuru!\n</p>\n<p>\nPaldies par Jūsu izvēli!\n</p>\n<p>\nSirsnīgi,\nIR Notikumi komanda\n</p>\n</div>\n<div><p>\nŠis ir automātisks e-pasts, uz to nav nepieciešams atbildēt. Jautājumu gadījumā, lūdzu, sazinieties ar mums pa tālr.: <a href=3D\"tel:27734907\" style=3D\"color:#202020;font-weight=\n:normal;text-decoration:underline\" target=3D\"_blank\">27734907</a> vai e-pastu: <a href=3D\"mailto:info@ir.lv\" style=3D\"color:#202020;font-weight:normal=;text-decoration:underline\" target=3D\"_blank\">info@ir.lv</a>\n</p>\n</div>\n",
+        "options": {
+          "attachments": "=data",
+          "ccEmail": "=edgars.arnitis@ir.lv"
+        }
+      },
+      "id": "6533ee29-4b1b-4fef-9198-1f292355834c",
+      "name": "Admin email Invoice1",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [
+        -1540,
+        1320
+      ],
+      "credentials": {
+        "smtp": {
+          "id": "3qvvgK5rlEf1cqGI",
+          "name": "Google IR"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('order').item.json.body.billing.email }}",
+        "subject": "Jūsu pasūtījums IR NOTIKUMI (Cits Medijs AS)",
+        "message": "=<style>\np {padding: 10px; }\n</style>\n\n\n<div>\n<p>\nLabdien!\n<br /><br />\nMēs esam saņēmuši Jūsu pieteikumu dalībai darbnīcā: \n<br /><br />\n{{ $('Stringemail').item.json[\"stringemail\"] }}\n<br /><br />\n\n</p>\n</div>\n\n<div>\n<p>\nPielikumā ir dalības maksas avansa rēķins.\nMaksājot ar bankas pārskaitījumu, lūdzu, norādiet rēķina numuru!\n</p>\n<p>\nPaldies par Jūsu izvēli! <br/>\nSirsnīgi,\nIR Notikumi komanda\n</p>\n</div>\n<div><p>\nŠis ir automātisks e-pasts, uz to nav nepieciešams atbildēt. Jautājumu gadījumā, lūdzu, sazinieties ar mums pa tālr.: <a href=3D\"tel:27734907\" style=3D\"color:#202020;font-weight=\n:normal;text-decoration:underline\" target=3D\"_blank\">27734907</a> vai e-pastu: <a href=3D\"mailto:info@ir.lv\" style=3D\"color:#202020;font-weight:normal=;text-decoration:underline\" target=3D\"_blank\">info@ir.lv</a>\n</p>\n</div>\n",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {}
+            ]
+          }
+        }
+      },
+      "id": "a3010c3a-429d-473a-9d17-150cd2e936f4",
+      "name": "Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        820,
+        500
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "i8yUhQAx74lvxr0z",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "=notikumi@ir.lv",
+        "subject": "Jūsu pasūtījums IR NOTIKUMI (Cits Medijs AS)   Avansa rēķins",
+        "message": "=<style>\np {padding: 10px; }\n</style>\n\n\n<div>\n<p>\nLabdien!\n<br /><br />\nMēs esam saņēmuši Jūsu pieteikumu dalībai darbnīcā: \n<br /><br />\n{{ $('Stringemail').item.json[\"stringemail\"] }}\n<br /><br />\n\n</p>\n</div>\n\n<div>\n<p>\nPielikumā ir dalības maksas avansa rēķins.\nMaksājot ar bankas pārskaitījumu, lūdzu, norādiet rēķina numuru!\n</p>\n<p>\nPaldies par Jūsu izvēli! <br/>\nSirsnīgi,\nIR Notikumi komanda\n</p>\n</div>\n<div><p>\nŠis ir automātisks e-pasts, uz to nav nepieciešams atbildēt. Jautājumu gadījumā, lūdzu, sazinieties ar mums pa tālr.: <a href=3D\"tel:27734907\" style=3D\"color:#202020;font-weight=\n:normal;text-decoration:underline\" target=3D\"_blank\">27734907</a> vai e-pastu: <a href=3D\"mailto:info@ir.lv\" style=3D\"color:#202020;font-weight:normal=;text-decoration:underline\" target=3D\"_blank\">info@ir.lv</a>\n</p>\n</div>\n",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {}
+            ]
+          }
+        }
+      },
+      "id": "49de77ce-b6d6-4402-add2-8888e68cad30",
+      "name": "Gmail1",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        820,
+        700
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "i8yUhQAx74lvxr0z",
+          "name": "Gmail account 2"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -629,22 +889,16 @@
         ]
       ]
     },
-    "HTTP Request4": {
-      "main": [
-        [
-          {
-            "node": "Invoiced Order",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "invoice_new": {
       "main": [
         [
           {
             "node": "invoice_label",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Invoiced Order",
             "type": "main",
             "index": 0
           }
@@ -655,7 +909,7 @@
       "main": [
         [
           {
-            "node": "Stringemail",
+            "node": "IF2",
             "type": "main",
             "index": 0
           }
@@ -688,7 +942,7 @@
       "main": [
         [
           {
-            "node": "Set2",
+            "node": "IF1",
             "type": "main",
             "index": 0
           }
@@ -743,12 +997,17 @@
       "main": [
         [
           {
-            "node": "Admin email Invoice",
+            "node": "Set4",
             "type": "main",
             "index": 0
           },
           {
-            "node": "Client Email Invoice",
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Gmail1",
             "type": "main",
             "index": 0
           }
@@ -876,11 +1135,91 @@
         ]
       ]
     },
-    "Invoiced Order": {
+    "Set4": {
+      "main": [
+        [
+          {
+            "node": "save participants",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF1": {
+      "main": [
+        [
+          {
+            "node": "Set5",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set5": {
+      "main": [
+        [
+          {
+            "node": "items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request4": {
       "main": [
         [
           {
             "node": "Create PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Stringemail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Stringemail",
             "type": "main",
             "index": 0
           }
@@ -898,7 +1237,7 @@
     "errorWorkflow": "BDx8NwbqJhGZxzLz",
     "executionOrder": "v1"
   },
-  "versionId": "fedda071-7da8-4d01-a3d3-3e0480b09b34",
+  "versionId": "68931703-1c06-4293-9cfd-3ed8b570dc61",
   "id": "Vid0FoFzaJ6OmdSV",
   "meta": {
     "instanceId": "0f064bae8ef402bc77bc2dfa9bf8ed7b60d49005d687ffae7941232c8a9d8d44"
