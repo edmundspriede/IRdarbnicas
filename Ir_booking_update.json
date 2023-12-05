@@ -1,0 +1,368 @@
+{
+  "name": "Ir booking update",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "2c9be5ef-e835-4fa5-beed-c9eb83665629",
+      "name": "When clicking \"Execute Workflow\"",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -440,
+        120
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "9c728344-18ec-4103-9efc-2474ea2a506a",
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        -440,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "url": "= https://irdarbnicas.lv/wp-json/wc/v3/orders/{{ $json.order_nr }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "68fcf309-4800-41e5-aadc-c70272135fcb",
+      "name": "order",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        -160,
+        280
+      ],
+      "notesInFlow": true,
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "9",
+          "name": "IR darbnica"
+        }
+      },
+      "notes": "READ ORDER"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1j2S0H3fqVlezYuv9UBFjzCrrQnkFwiV5i2OGnlAa1L0",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Lapa1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1j2S0H3fqVlezYuv9UBFjzCrrQnkFwiV5i2OGnlAa1L0/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Pasūtījuma ID",
+              "lookupValue": "={{ $json.body.id }}"
+            }
+          ]
+        },
+        "options": {
+          "returnAllMatches": "returnAllMatches"
+        }
+      },
+      "id": "cfada21b-071b-4c27-8715-5e35aada8f78",
+      "name": "Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        100,
+        280
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "6OCPtYLn2JwWitAP",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1j2S0H3fqVlezYuv9UBFjzCrrQnkFwiV5i2OGnlAa1L0",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Lapa1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1j2S0H3fqVlezYuv9UBFjzCrrQnkFwiV5i2OGnlAa1L0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Dalībnieka vārds": "={{ $json['Dalībnieka vārds'] }}",
+            "Dalībnieka e-pasts": "={{ $json['Dalībnieka e-pasts'] }}",
+            "Dalībnieka tālr. nr.": "={{ $json['Dalībnieka tālr. nr.'] }}",
+            "Darbnīca": "={{ $json.Darbnīca }}",
+            "Statuss": "=Apmaksāts",
+            "Pieteicēja vārds": "={{ $json['Pieteicēja vārds'] }}",
+            "Pieteicēja tālr. nr.": "={{ $json['Pieteicēja tālr. nr.'] }}",
+            "Pieteicēja e-pasts": "={{ $json['Pieteicēja e-pasts'] }}",
+            "Uzņēmuma nosaukums": "={{ $json['Uzņēmuma nosaukums'] }}",
+            "Pasūtījuma ID": "={{ $('order').item.json.body.id }}",
+            "Pasūtījuma datums": "=",
+            "Piezīmes": "={{ $json.Piezīmes }}",
+            "Rēķina Nr.": "={{ $jmespath($('order').item.json.body.meta_data , \"[?key == 'invoice_full'].value\") }}",
+            "Pieteicēja uzvārds": "={{ $json['Pieteicēja uzvārds'] }}",
+            "row_number": "={{ $json.row_number }}"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "Dalībnieka vārds",
+              "displayName": "Dalībnieka vārds",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Dalībnieka e-pasts",
+              "displayName": "Dalībnieka e-pasts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Dalībnieka tālr. nr.",
+              "displayName": "Dalībnieka tālr. nr.",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Darbnīca",
+              "displayName": "Darbnīca",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Statuss",
+              "displayName": "Statuss",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Rēķina Nr.",
+              "displayName": "Rēķina Nr.",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Pieteicēja vārds",
+              "displayName": "Pieteicēja vārds",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Pieteicēja uzvārds",
+              "displayName": "Pieteicēja uzvārds",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Pieteicēja tālr. nr.",
+              "displayName": "Pieteicēja tālr. nr.",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Pieteicēja e-pasts",
+              "displayName": "Pieteicēja e-pasts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Uzņēmuma nosaukums",
+              "displayName": "Uzņēmuma nosaukums",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Rēķina summa",
+              "displayName": "Rēķina summa",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Pasūtījuma ID",
+              "displayName": "Pasūtījuma ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Pasūtījuma datums",
+              "displayName": "Pasūtījuma datums",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Piezīmes",
+              "displayName": "Piezīmes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "664b4b96-bb91-4ab0-bff2-be31d54b0095",
+      "name": "Google Sheets1",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        380,
+        280
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "6OCPtYLn2JwWitAP",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking \"Execute Workflow\"": {
+      "main": [
+        [
+          {
+            "node": "order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "order": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5ed25dfa-c8b7-4336-a02b-cde151b093ff",
+  "id": "qNtCaGEYMvmhcyEG",
+  "meta": {
+    "instanceId": "0f064bae8ef402bc77bc2dfa9bf8ed7b60d49005d687ffae7941232c8a9d8d44"
+  },
+  "tags": [
+    {
+      "createdAt": "2023-08-10T06:09:50.889Z",
+      "updatedAt": "2023-08-10T06:09:50.889Z",
+      "id": "4",
+      "name": "IR"
+    }
+  ]
+}
