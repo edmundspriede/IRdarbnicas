@@ -39,8 +39,24 @@ add_action( 'wp_enqueue_scripts', 'hello_elementor_child_scripts_styles', 20 );
 add_filter("jet-form-builder/action/redirect_to_woo_checkout/add-to-cart", 'formbuilder_add_to_cart' , 20 , 5);    
 
 
+function filter_normal($a) { 
+    
+    if  ($a['attributes']['attribute_pa_upsell'] == 'normal-2'){
+        return true;    
+    }
+    
+}
+
 function formbuilder_add_to_cart($params) {
     
+
+    
+    
+    if ($params[4]['jfb_form_data']['pievieno_citus_cikla_seminarus']) {
+		
+		$cartdata['cikls'] = true;
+		
+	}
  
     if (isset($params[4]['jfb_form_data']['dalibnieku_dati'])) {
         
@@ -55,7 +71,7 @@ function formbuilder_add_to_cart($params) {
              $cartdata['dalibnieki'] = $dalibnieki;
     } 
     
-   
+    
     
     //EP pievienojam galveno produktu
   
@@ -63,7 +79,13 @@ function formbuilder_add_to_cart($params) {
     if ($product->is_type('variable')) {
       
         $variations = $product->get_available_variations();
-        WC()->cart->add_to_cart($params[0], $params[4]['jfb_form_data']['skaits'] , $variations[0]["variation_id"], array(),$cartdata); 
+        $normal = array_filter( $variations, "filter_normal" );
+        $normal = current($normal);
+        
+        $datums = $product->get_meta('datums_');
+         $cartdata['datums'] = date("d.m.Y", (int)$datums );
+        WC()->cart->add_to_cart( $product->id, $params[4]['jfb_form_data']['skaits'] ,  $normal["variation_id"], array(),$cartdata); 
+        
     } else {
    
         WC()->cart->add_to_cart($params[0], $params[4]['jfb_form_data']['skaits'] , 0 , array(),$cartdata); 
@@ -77,10 +99,18 @@ function formbuilder_add_to_cart($params) {
       
             foreach($params[4]['jfb_form_data']['pievieno_citus_cikla_seminarus'] as $v) {
          
-                            WC()->cart->add_to_cart($v, $params[4]['jfb_form_data']['skaits'] , 0, array(), $cartdata); 
+                
+                        $variation = wc_get_product($v);
+                        $product  = $variation->get_parent_id();
+                        $product =  wc_get_product($product);
+                        $datums = $product->get_meta('datums_');
+                        $cartdata['datums'] = date("d.m.Y", (int)$datums );
+                        WC()->cart->add_to_cart($v, $params[4]['jfb_form_data']['skaits'] , 0, array(), $cartdata); 
             }  
         } else {
-          
+                $product = wc_get_product($params[4]['jfb_form_data']['pievieno_citus_cikla_seminarus']);
+                $datums = $product->get_meta('datums_');
+                $cartdata['datums'] = date("d.m.Y", (int)$datums );
                 WC()->cart->add_to_cart($params[4]['jfb_form_data']['pievieno_citus_cikla_seminarus'], $params[4]['jfb_form_data']['skaits'] , 0, array(), $cartdata); 
         }  
       }
@@ -92,13 +122,21 @@ function formbuilder_add_to_cart($params) {
 
 function formbuilder_get_item_data( $item_data, $cart_item_data ) {
  if( isset( $cart_item_data['dalibnieki'] ) ) {
- $item_data[] = array(
- 'key' => 'Dalībnieki',
- 'value' =>  $cart_item_data['dalibnieki'] 
+     $item_data[] = array(
+     'key' => 'Dalībnieki',
+     'value' =>  $cart_item_data['dalibnieki'] 
+ );
+ }
+ 
+ if( isset( $cart_item_data['datums'] ) ) {
+     $item_data[] = array(
+     'key' => 'Datums',
+     'value' =>  $cart_item_data['datums'] 
  );
  }
  return $item_data;
 }
+
 add_filter( 'woocommerce_get_item_data', 'formbuilder_get_item_data', 10, 2 );
 
 
@@ -106,10 +144,10 @@ function formbuilder_checkout_create_order_line_item( $item, $cart_item_key, $va
  if( isset( $values['dalibnieki_serial'] ) ) {
  $item->add_meta_data(
     'Dalībnieki' ,
-    $values['dalibnieki_serial'],
- true
- );
+    $values['dalibnieki_serial'], true );
+ 
  }
+  //$item->add_meta_data(    'Datums' ,    $values['datums'], true ); 
 }
 add_action( 'woocommerce_checkout_create_order_line_item', 'formbuilder_checkout_create_order_line_item', 10, 4 );
 
@@ -186,4 +224,127 @@ function remove_variation_from_product_title( $title, $cart_item, $cart_item_key
 
 	return $title;
 }
-add_filter( 'woocommerce_cart_item_name', 'remove_variation_from_product_title', 10, 3 );
+//add_filter( 'woocommerce_cart_item_name', 'remove_variation_from_product_title', 10, 3 );
+
+
+function ir_after_order_complete( $order_id ) {
+	
+	
+   $order = new WC_Order( $order_id );
+   $payment_title = $order->get_payment_method();	
+   
+   if ($payment_title == 'bacs') {
+	
+	
+      // URL of the web service
+      $url = 'https://n8n.m50.lv:5678/webhook/5aa23911-6370-40bc-b97e-e8812b5c8459';
+
+      // Data to send in the POST request
+      $data = array(
+       'order_nr' => $order_id,
+   
+       );
+
+      // Initialize cURL session
+      $ch = curl_init($url);
+
+      // Set cURL options for the POST request
+      curl_setopt($ch, CURLOPT_POST, 1);
+      curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  
+      // Disable SSL verification
+      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+      curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+
+      // Execute the cURL session and store the response in $response
+      $response = curl_exec($ch);
+
+      // Check for cURL errors
+      if (curl_errno($ch)) {
+         echo 'cURL error: ' . curl_error($ch);
+      }
+
+      // Close cURL session
+      curl_close($ch);
+   }
+   
+   return true;
+}
+
+add_action( 'woocommerce_order_status_completed', 'ir_after_order_complete'  );
+
+/**
+ * exclude a product from an coupon by attribute value
+ */
+add_filter('woocommerce_coupon_is_valid_for_product', 'exclude_product_from_coupon_by_attribute', 12, 4);
+function exclude_product_from_coupon_by_attribute($valid, $product, $coupon, $values ){
+    
+	
+	$valid = true;
+    
+    //$product = wc_get_product($product);
+    
+   // $variations = $product->get_available_variations();
+   // $variations_id = wp_list_pluck( $variations, 'variation_id' );
+    
+    
+    global $woocommerce;
+    $items = $woocommerce->cart->get_cart();
+    
+       
+    foreach ($items as $k => $v) {
+        
+        if ($v['cikls'] == true && ($v['variation_id'] == $product->id))   return false;
+	    if ($v['cikls'] == true && ($v['product_id'] == $product->id))   return false;
+     //   if ($product->is_type('variable') ||  $product->is_type('simple') ) {
+     //         if ($v['cikls'] == true && $v['product_id'] == $product->id)   return false;
+     //   } elseif ($product->is_type('variation'))
+            
+             
+    }
+    
+    
+    //$taxonomy = 'pa_upsell';
+    //$term_slugs = array('(ar atlaidi)');
+  
+   // if ($product->id == 1934 ) return false;
+  
+   
+    /**
+     * check if the product has the attribute and value 
+     * and if yes restrict this product from the coupon
+     */
+    //echo($product->id);
+    //echo($product->get_attribute($taxonomy));
+  
+ //   if(in_array($product->get_attribute($taxonomy), $term_slugs)) {
+   //     $valid = false;
+      
+
+    /**
+     * otherwise check if its a variation product
+     */
+   // } //elseif($product->parent_id) {
+        /**
+         * set the parent product
+         */
+       // $parent = wc_get_product($product->parent_id);
+        
+        /**
+         * check if parent has an attribute with this value
+         */
+     //   if(in_array($parent->get_attribute($taxonomy), $term_slugs)) {
+      //      $valid = false;
+     //   }
+
+    /**
+     * for all other products which does not have the attribute with the value
+     * set the coupon to valid
+     */
+    
+
+    return $valid;
+}
+
+
