@@ -169,7 +169,7 @@
         "url": "=https://irekini.lv/api.php?r=invoices/invoice/create-invoice&access-token=TVPlsEZjdCj--B2-rK-SKDrZPqU5_ikk&cId=16779&document_id=441\n\n",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"InvInvoiceForm\": {\n    \n    \"doc_date\": \"{{$('order').item.json.body.date_created_gmt}}\",\n    \"partner_id\": \"{{ $jmespath($('order').item.json.body.meta_data , \"[?key == 'partner'].value\") }}\",\n    \"currency_id\": \"1\",\n    \"payment_type\": \"Bank Transfer\",\n    \"additional_info\" : \"\",\n    \"serial_nr_part2\"  : \"{{ $jmespath($('order').item.json.body.meta_data , \"[?key == 'invoice_nr'].value\") }}\"\n}\n}",
+        "jsonBody": "={\n  \"InvInvoiceForm\": {\n    \n    \"doc_date\": \"{{$('order').item.json.body.date_created_gmt}}\",\n    \"partner_id\": \"{{ $jmespath($('order').item.json.body.meta_data , \"[?key == 'partner'].value\") }}\",\n    \"currency_id\": \"1\",\n    \"payment_type\": \"Bank Transfer\",\n    \"additional_info\" : \"\",\n    \"serial_nr_part2\"  : \"{{ $jmespath($('order').item.json.body.meta_data , \"[?key == 'invoice_nr'].value\") }}\",\n     \"additional_info\" : \"Rēķins ir apmaksāts\"\n}\n}",
         "options": {
           "allowUnauthorizedCerts": true,
           "response": {
@@ -295,8 +295,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
       "position": [
-        1920,
-        1320
+        2200,
+        1480
       ],
       "notesInFlow": true,
       "notes": "POST items"
@@ -312,8 +312,8 @@
       "type": "n8n-nodes-base.itemLists",
       "typeVersion": 2.1,
       "position": [
-        1540,
-        1320
+        1680,
+        1540
       ]
     },
     {
@@ -335,8 +335,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
       "position": [
-        960,
-        1320
+        820,
+        1400
       ],
       "notesInFlow": true,
       "credentials": {
@@ -357,8 +357,8 @@
       "type": "n8n-nodes-base.itemLists",
       "typeVersion": 2.1,
       "position": [
-        600,
-        1320
+        460,
+        1400
       ]
     },
     {
@@ -374,96 +374,36 @@
       "type": "n8n-nodes-base.dateTime",
       "typeVersion": 2,
       "position": [
-        1160,
+        1100,
         1320
       ]
     },
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "// Add a new field called 'myNewField' to the JSON of the item\n\nvar memberstring = '';\n\nfor (meta of $input.item.json['meta_data']) {\n    if (meta['key'] == 'Dalībnieki') {\n        var members = JSON.parse(meta[\"value\"]);\n        if (Array.isArray(members)) {\n\n                 for (member of members) {\n                       memberstring = memberstring + member[\"vards_uzvards\"] +  '; ' ;\n                       memberstring = memberstring + member[\"epasts\"] +  '; ' ;\n                       memberstring = memberstring + '\\n';\n                  }\n        }\n      \n    }\n  \n}\n\n\n\n$input.item.json.members = memberstring;\n\nreturn $input.item;"
+        "jsCode": "// Add a new field called 'myNewField' to the JSON of the item\n\nvar memberstring = '';\n\nfor (meta of $input.item.json['meta_data']) {\n    if (meta['key'] == 'Dalībnieki') {\n        var members = JSON.parse(meta[\"value\"]);\n        if (Array.isArray(members)) {\n\n                 for (member of members) {\n                       memberstring = memberstring + member[\"vards_uzvards\"] +  '; ' ;\n                       memberstring = memberstring + member[\"epasts\"] +  '; ' ;                      \n                  }\n        }\n      \n    }\n  \n}\n\n\n\n$input.item.json.members = memberstring.slice(0, -2);\n\nreturn $input.item;"
       },
       "id": "a8bca094-dc28-46c3-8d8f-03d977ecd19c",
       "name": "Members",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        760,
-        1200
-      ]
-    },
-    {
-      "parameters": {
-        "keepOnlySet": true,
-        "values": {
-          "string": [
-            {
-              "name": "name",
-              "value": "=\n{{ $('itemlists').item.json[\"name\"] }}\nDatums: {{ $('Date & Time').item.json[\"formattedDate\"] }} \nDalībnieki: {{ $('Members').item.json.members }}"
-            },
-            {
-              "name": "count",
-              "value": "={{ parseInt($('itemlists').item.json[\"quantity\"]) }}"
-            },
-            {
-              "name": "vat_id",
-              "value": "1"
-            },
-            {
-              "name": "unit_id",
-              "value": "2"
-            },
-            {
-              "name": "name_invoice",
-              "value": "=\n{{ $('itemlists').item.json[\"name\"] }}<br/>\nDatums: {{ $('Date & Time').item.json[\"formattedDate\"] }} \nDalībnieki: {{ $('Members').item.json.members }}"
-            }
-          ],
-          "number": [
-            {
-              "name": "unit_price",
-              "value": "={{ $('itemlists').item.json[\"subtotal\"] / parseInt($('itemlists').item.json[\"quantity\"]) }}"
-            }
-          ]
-        },
-        "options": {
-          "dotNotation": false
-        }
-      },
-      "id": "96979b4a-ae5b-499f-90c9-96a1a446d3fe",
-      "name": "Set2",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 2,
-      "position": [
-        1340,
-        1320
+        640,
+        1280
       ]
     },
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "// Add a new field called 'myNewField' to the JSON of the item\n  var stringemail = '';\n  for (i of item.json.items_) {\n       stringemail = stringemail + \"<br />\" +  i.name_invoice + \"<br />\";\n  }\n\n  item.json.stringemail = stringemail;\n\nreturn $input.item;"
-      },
-      "id": "87ae8531-a06b-4639-a97a-aca03d48a9b0",
-      "name": "Stringemail",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1720,
-        1320
-      ]
-    },
-    {
-      "parameters": {
-        "mode": "runOnceForEachItem",
-        "jsCode": "// Add a new field called 'myNewField' to the JSON of the item\n  var dateformated = '';\n  for (meta of item.json.body.meta_data) {\n       if (meta['key'] == 'datums')  item.json.dateformated = meta['value']  ;\n  }\n\n \nreturn $input.item;"
+        "jsCode": "// Add a new field called 'myNewField' to the JSON of the item\n  var dateformated = '';\n  for (meta of item.json.body.meta_data) {\n       if (meta['key'] == 'datums_')  item.json.dateformated = meta['value'] ;\n  }\n\n \nreturn $input.item;"
       },
       "id": "23a09c72-0498-4ee6-b4bb-9f7831464cf8",
       "name": "Stringemail1",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1100,
-        1500
+        1000,
+        1600
       ]
     },
     {
@@ -501,35 +441,6 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://irekini.lv/api.php?r=invoices/invoice/attach-advance&access-token=TVPlsEZjdCj--B2-rK-SKDrZPqU5_ikk&cId=16779&invoiceId={{ $jmespath($('order').item.json.body.meta_data , \"[?key == 'invoice'].value\") }}\n \n",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n  \"InvInvoiceForm\": {\n    \n    \"doc_date\": \"{{$('order').item.json.body.date_created_gmt}}\",\n    \"partner_id\": \"\",\n    \"currency_id\": \"1\",\n    \"payment_type\": \"\",\n    \"additional_info\" : \"\"\n}\n}",
-        "options": {
-          "allowUnauthorizedCerts": true,
-          "response": {
-            "response": {
-              "fullResponse": true
-            }
-          }
-        }
-      },
-      "id": "d9b9196a-8f04-4667-90e6-f8911675f1ff",
-      "name": "attach advance",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 3,
-      "position": [
-        1800,
-        1740
-      ],
-      "notesInFlow": true,
-      "executeOnce": true,
-      "continueOnFail": true,
-      "notes": "POST new invoice advance"
-    },
-    {
-      "parameters": {
-        "method": "POST",
         "url": "=https://irekini.lv/api.php?r=invoices/invoice/attach-advance&access-token=TVPlsEZjdCj--B2-rK-SKDrZPqU5_ikk&cId=16779&invoiceId={{ $('invoice_new').item.json.body[\"id\"] }}&advanceInvoiceId={{ $jmespath($('order').item.json.body.meta_data , \"[?key == 'invoice'].value\") }}\n \n",
         "options": {
           "allowUnauthorizedCerts": true,
@@ -555,35 +466,9 @@
     },
     {
       "parameters": {
-        "fromEmail": "n8n@system.weberp.lv",
-        "toEmail": "=edmunds@kls.lv",
-        "subject": "Jūsu pasūtījums IR NOTIKUMI (Cits Medijs AS)",
-        "emailFormat": "html",
-        "html": "=<style>\np {padding: 10px; }\n</style>\n\n\n<div>\n<p>\nLabdien!\n<br /><br />\nMēs esam saņēmuši Jūsu pieteikumu dalībai darbnīcā: \n\n\n</p>\n</div>\n\n<div>\n<p>\nPielikumā ir dalības maksas  rēķins.\n</p>\n<p>\nPaldies par Jūsu izvēli! <br/>\nSirsnīgi,\nIR Notikumi komanda\n</p>\n</div>\n<div><p>\nŠis ir automātisks e-pasts, uz to nav nepieciešams atbildēt. Jautājumu gadījumā, lūdzu, sazinieties ar mums pa tālr.: <a href=3D\"tel:27734907\" style=3D\"color:#202020;font-weight=\n:normal;text-decoration:underline\" target=3D\"_blank\">27734907</a> vai e-pastu: <a href=3D\"mailto:info@ir.lv\" style=3D\"color:#202020;font-weight:normal=;text-decoration:underline\" target=3D\"_blank\">info@ir.lv</a>\n</p>\n</div>\n",
-        "options": {
-          "attachments": "=data"
-        }
-      },
-      "id": "f93c159c-527c-422f-ad25-7394d8a8a604",
-      "name": "Client Email Invoice1",
-      "type": "n8n-nodes-base.emailSend",
-      "typeVersion": 2,
-      "position": [
-        1060,
-        340
-      ],
-      "credentials": {
-        "smtp": {
-          "id": "3qvvgK5rlEf1cqGI",
-          "name": "Google IR"
-        }
-      }
-    },
-    {
-      "parameters": {
         "sendTo": "={{ $('order').item.json.body.billing.email }}",
-        "subject": "Jūsu pasūtījums IR NOTIKUMI (Cits Medijs AS)",
-        "message": "=<style>\np {padding: 10px; }\n</style>\n\n\n<div>\n<p>\nLabdien!\n<br /><br />\nMēs esam saņēmuši maksājumu par dalību IR darbnīcā: \n \n<br /><br />\n{{ $('Stringemail').item.json[\"stringemail\"] }}\n<br /><br />\nAtgādinājumu un praktisko informāciju par norisi Jūs saņemsiet 2 darba dienas pirms pasākuma.\n<br /><br />\nPirkuma distances līgumu varat lejuplādēt <a href=\"https://ir.lv/abonesanas-un-iepirksanas-noteikumi-vietne-www-ir-lv/\">šeit</a>. <a href=\"https://ir.lv/privatuma_politika/\">Mūsu privātuma politika</a>.\n<br /><br />\nPielikumā sūtām gala rēķinu.\n\n</p>\n</div>\n\n<div>\n\n<p>\nPaldies par Jūsu izvēli! <br/><br/>\nSirsnīgi,\nIR Notikumi komanda\n</p>\n</div>\n<div><p>\nŠis ir automātisks e-pasts, uz to nav nepieciešams atbildēt. Jautājumu gadījumā, lūdzu, sazinieties ar mums pa tālr.: <a href=3D\"tel:27734907\" style=3D\"color:#202020;font-weight=\n:normal;text-decoration:underline\" target=3D\"_blank\">27734907</a> vai e-pastu: <a href=3D\"mailto:info@ir.lv\" style=3D\"color:#202020;font-weight:normal=;text-decoration:underline\" target=3D\"_blank\">info@ir.lv</a>\n</p>\n</div>\n",
+        "subject": "Jūsu pasūtījums IR DARBNĪCAS (Cits Medijs AS)",
+        "message": "=<style>\np {padding: 10px; }\n</style>\n<div>\n<p>\nLabdien!\n<br /><br />\nMēs esam saņēmuši maksājumu par dalību: \n<br /><br />\n{{ $('Stringemail').item.json[\"stringemail\"] }}\n<br />\nAtgādinājumu un praktisko informāciju par norisi dalībnieki saņems 2 darba dienas pirms pasākuma.\n<br />\n{{ $('Paraksts').item.json.body.meta.apaksa }}\n</div>\n",
         "options": {
           "appendAttribution": false,
           "attachmentsUi": {
@@ -663,7 +548,7 @@
         "genericAuthType": "httpBasicAuth",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n   \"status\" : \"invoiced\",\n   \"meta_data\" : [{\n           \"key\"  :  \"invoice\"  ,\n           \"value\" : \"{{ $('invoice_new').item.json.body[\"id\"] }}\"\n       },\n          \n       {\n           \"key\"  :  \"invoice_nr\"  ,\n           \"value\" : \"{{ $json.body.serial_nr_part2}}\"\n       },\n        {\n           \"key\"  :  \"invoice_full\"  ,\n           \"value\" : \"{{ $json.body.serial_nr_part1}}/{{ $json.body.serial_nr_part2}}\"\n       }\n]\n\n }",
+        "jsonBody": "={\n  \n   \"meta_data\" : [{\n           \"key\"  :  \"invoice\"  ,\n           \"value\" : \"{{ $('invoice_new').item.json.body[\"id\"] }}\"\n       },\n          \n       {\n           \"key\"  :  \"invoice_nr\"  ,\n           \"value\" : \"{{ $json.body.serial_nr_part2}}\"\n       },\n        {\n           \"key\"  :  \"invoice_full\"  ,\n           \"value\" : \"{{ $json.body.serial_nr_part1}}/{{ $json.body.serial_nr_part2}}\"\n       }\n]\n\n }",
         "options": {
           "allowUnauthorizedCerts": true,
           "response": {
@@ -723,6 +608,251 @@
         2300,
         1220
       ]
+    },
+    {
+      "parameters": {
+        "url": "= https://irdarbnicas.lv/wp-json/wp/v2/paraksti/5243",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "70da2db9-db5a-436b-90c7-12d6012b48b8",
+      "name": "Paraksts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        1840,
+        780
+      ],
+      "notesInFlow": true,
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "ANe97BR4sIiNl0rE",
+          "name": "IR WP API"
+        }
+      },
+      "notes": "READ ORDER"
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "name",
+              "value": "=\n{{ $('itemlists').item.json[\"name\"] }}\nDatums: {{ $('Date & Time').item.json[\"formattedDate\"] }} \n"
+            },
+            {
+              "name": "count",
+              "value": "={{ parseInt($('itemlists').item.json[\"quantity\"]) }}"
+            },
+            {
+              "name": "vat_id",
+              "value": "1"
+            },
+            {
+              "name": "unit_id",
+              "value": "2"
+            },
+            {
+              "name": "name_email",
+              "value": "=\n{{ $('itemlists').item.json[\"name\"] }}<br/>\nDatums: {{ $('Date & Time').item.json[\"formattedDate\"] }} <br/>\nDalībnieki: {{ $('Members').item.json.members }}"
+            }
+          ],
+          "number": [
+            {
+              "name": "unit_price",
+              "value": "={{ $('itemlists').item.json[\"subtotal\"] / parseInt($('itemlists').item.json[\"quantity\"]) }}"
+            }
+          ]
+        },
+        "options": {
+          "dotNotation": false
+        }
+      },
+      "id": "9ab6d5f5-36be-4b10-a4a4-29eb98eae4b9",
+      "name": "Ir cikls",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        1480,
+        1440
+      ],
+      "notesInFlow": true,
+      "notes": "Ja ir cikls atlaidi neliekam"
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "name",
+              "value": "=\n{{ $('itemlists').item.json[\"name\"] }}\nDatums: {{ $('Date & Time').item.json[\"formattedDate\"] }} \n"
+            },
+            {
+              "name": "count",
+              "value": "={{ parseInt($('itemlists').item.json[\"quantity\"]) }}"
+            },
+            {
+              "name": "vat_id",
+              "value": "1"
+            },
+            {
+              "name": "unit_id",
+              "value": "2"
+            },
+            {
+              "name": "discount",
+              "value": "20%"
+            },
+            {
+              "name": "name_email",
+              "value": "=\n{{ $('itemlists').item.json[\"name\"] }}<br/>\nDatums: {{ $('Date & Time').item.json[\"formattedDate\"] }} <br/>\nDalībnieki: {{ $('Members').item.json.members }}"
+            }
+          ],
+          "number": [
+            {
+              "name": "unit_price",
+              "value": "={{ $('itemlists').item.json[\"subtotal\"] / parseInt($('itemlists').item.json[\"quantity\"]) }}"
+            }
+          ]
+        },
+        "options": {
+          "dotNotation": false
+        }
+      },
+      "id": "ee190e7c-4e23-4caf-854e-c35bd6901d40",
+      "name": "Nav cikls",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        1480,
+        1100
+      ],
+      "notesInFlow": true,
+      "notes": "Ja nav cikls liekam atlaidi"
+    },
+    {
+      "parameters": {},
+      "id": "8e02faa6-6416-4cee-b0c4-332cb6116c5e",
+      "name": "Merge1",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [
+        1620,
+        1300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $('order1').item.json.body.coupon_lines[0].code }}",
+              "value2": "irabonents"
+            },
+            {
+              "value1": "={{ JSON.parse($jmespath($('itemlists').item.json.meta_data , \"[?key == 'Cikls'].value\")) }}",
+              "operation": "isEmpty"
+            }
+          ]
+        }
+      },
+      "id": "5ab69540-279b-4c0c-8ecd-6ee4a4838f5e",
+      "name": "IF3",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1300,
+        1320
+      ]
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "discount",
+              "stringValue": "1"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "60ac524d-a536-4404-87b0-4e3df1d8721b",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.2,
+      "position": [
+        1660,
+        1780
+      ],
+      "notesInFlow": true,
+      "notes": "Ja ir kupons , liekam Discount tagu"
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "discount",
+              "stringValue": "0"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "914ba6cc-da46-487a-881d-057a3a1e5223",
+      "name": "Edit Fields1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.2,
+      "position": [
+        1660,
+        2000
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $('order1').item.json.body.coupon_lines[0].code }}",
+              "value2": "irabonents"
+            }
+          ]
+        }
+      },
+      "id": "7da3979e-dd72-4fab-aaa3-06793dfb3a25",
+      "name": "IF4",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1440,
+        1880
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Add a new field called 'myNewField' to the JSON of the item\n  var stringemail = '';\n  for (i of item.json.items_) {\n       stringemail = stringemail + i.name_email + \"<br /><br />\";\n  }\n\n  item.json.stringemail = stringemail;\n\nreturn $input.item;"
+      },
+      "id": "e7f015d2-239c-484e-ab46-a698c2971c88",
+      "name": "Stringemail",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1940,
+        1760
+      ]
     }
   ],
   "pinData": {},
@@ -771,7 +901,7 @@
         ],
         [
           {
-            "node": "Create PDF",
+            "node": "Paraksts",
             "type": "main",
             "index": 0
           }
@@ -871,7 +1001,7 @@
       "main": [
         [
           {
-            "node": "Stringemail",
+            "node": "IF4",
             "type": "main",
             "index": 0
           }
@@ -900,44 +1030,11 @@
         ]
       ]
     },
-    "Date & Time": {
-      "main": [
-        [
-          {
-            "node": "Set2",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Members": {
       "main": [
         [
           {
             "node": "product",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Set2": {
-      "main": [
-        [
-          {
-            "node": "items",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Stringemail": {
-      "main": [
-        [
-          {
-            "node": "HTTP Request4",
             "type": "main",
             "index": 0
           }
@@ -1014,6 +1111,130 @@
           }
         ]
       ]
+    },
+    "Paraksts": {
+      "main": [
+        [
+          {
+            "node": "Create PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ir cikls": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Nav cikls": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF3": {
+      "main": [
+        [
+          {
+            "node": "Nav cikls",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ir cikls",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Stringemail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Stringemail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF4": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stringemail": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date & Time": {
+      "main": [
+        [
+          {
+            "node": "IF3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
@@ -1023,11 +1244,12 @@
     "saveManualExecutions": true,
     "callerPolicy": "workflowsFromSameOwner"
   },
-  "versionId": "b5c5808b-feb3-4432-ba79-452d9022f7a8",
-  "id": "FIYjPV7WNQZqh1Sn",
+  "versionId": "5934a85f-75f9-4bd7-ab6c-8f3a13bf0a97",
   "meta": {
+    "templateCredsSetupCompleted": true,
     "instanceId": "0f064bae8ef402bc77bc2dfa9bf8ed7b60d49005d687ffae7941232c8a9d8d44"
   },
+  "id": "FIYjPV7WNQZqh1Sn",
   "tags": [
     {
       "createdAt": "2023-08-10T06:09:50.889Z",
