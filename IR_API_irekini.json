@@ -3,30 +3,6 @@
   "nodes": [
     {
       "parameters": {
-        "url": "=https://irekini.lv/api.php?r=invoices/company/find-by-reg-code&access-token=TVPlsEZjdCj--B2-rK-SKDrZPqU5_ikk&cId=16779&regcode={{ $json.REGNR }}",
-        "options": {
-          "allowUnauthorizedCerts": true,
-          "response": {
-            "response": {
-              "fullResponse": true,
-              "neverError": true
-            }
-          }
-        }
-      },
-      "id": "5cf31a11-df28-48c9-b60c-42c3f4453d22",
-      "name": "HTTP Request5",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 3,
-      "position": [
-        160,
-        520
-      ],
-      "notesInFlow": true,
-      "notes": "CHECK CUSTOMER"
-    },
-    {
-      "parameters": {
         "value1": "={{ $json.statusCode }}",
         "rules": {
           "rules": [
@@ -52,37 +28,11 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 1,
       "position": [
-        -600,
-        1000
+        -780,
+        1040
       ],
       "notesInFlow": true,
       "notes": "CHECK NEW PARTNER"
-    },
-    {
-      "parameters": {
-        "url": "=https://irekini.lv/api.php?r=invoices/company/create-partner-company&access-token=TVPlsEZjdCj--B2-rK-SKDrZPqU5_ikk&cId=16779&type=person",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n  \"D3cCompany\": {\n    \"regcode\": \"\",\n    \"name\": \"{{ $('Order').item.json[\"body\"][\"billing\"][\"first_name\"] }} {{ $('Order').item.json[\"body\"][\"billing\"][\"last_name\"] }}\",\n    \"is_vat_payer\":0,\n    \"withoutRegCode\":1,\n    \"sepa\": \"\",\n    \"address\": \"{{ $('Order').item.json[\"body\"][\"billing\"][\"address_1\"] }} {{ $('Order').item.json[\"body\"][\"billing\"][\"address_2\"]}} {{ $('Order').item.json[\"body\"][\"billing\"][\"city\"] }} {{ $('Order').item.json[\"body\"][\"billing\"][\"country\"] }}\"\n  },\n  \"InvCompany\": {\n    \"payment_term\": \"0\",\n    \"payment_term_in\": \"0\",\n    \"invoice_email\": \"{{ $('Order').item.json[\"body\"][\"billing\"][\"email\"] }}\"\n  }\n}",
-        "options": {
-          "allowUnauthorizedCerts": true,
-          "response": {
-            "response": {
-              "fullResponse": true
-            }
-          }
-        }
-      },
-      "id": "6834a353-1c38-4647-8ded-78f1012ca13e",
-      "name": "HTTP Request9",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 3,
-      "position": [
-        160,
-        720
-      ],
-      "notesInFlow": true,
-      "notes": "CREATE PARTNER"
     },
     {
       "parameters": {
@@ -96,6 +46,10 @@
             {
               "name": "customer_id",
               "value": "={{ $json.body.id }}"
+            },
+            {
+              "name": "customer_name",
+              "value": "={{ $('Order').item.json[\"body\"][\"billing\"][\"first_name\"] }} {{ $('Order').item.json[\"body\"][\"billing\"][\"last_name\"] }}"
             }
           ]
         },
@@ -124,6 +78,10 @@
             {
               "name": "customer_id",
               "value": "={{ $json.body.id }}"
+            },
+            {
+              "name": "customer_name",
+              "value": "={{ $('Check customer').item.json.body.name }}"
             }
           ]
         },
@@ -136,17 +94,17 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 2,
       "position": [
-        160,
-        1000
+        120,
+        1080
       ]
     },
     {
       "parameters": {
         "conditions": {
-          "string": [
+          "number": [
             {
-              "value1": "={{ $json.REGNR }}",
-              "operation": "isNotEmpty"
+              "value1": "={{ $json.LEN }}",
+              "operation": "larger"
             }
           ]
         }
@@ -156,8 +114,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
-        -80,
-        540
+        -160,
+        420
       ],
       "notesInFlow": true,
       "notes": "LEGAL COMPANY ?"
@@ -173,15 +131,15 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
       "position": [
-        -1120,
-        320
+        -1280,
+        480
       ],
       "webhookId": "01c7f401-2fc3-475c-add3-3c3158ffdf1a"
     },
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "// Add a new field called 'myNewField' to the JSON of the item\nvar regnr;\n\nfor (reg of $input.item.json.body.meta_data) {\n\n   if (reg['key'] == '_billing_pvn_numurs'  ) {\n       regnr = reg['value'];\n   }\n}\n\n\nif (regnr) { \n\n  regnr = regnr.trim();\n  len = regnr.length;\n\n  if (len == 13) {\n    $input.item.json.REGNR = regnr.substr(2,len);\n  } else  if (len == 11)  $input.item.json.REGNR = regnr;\n\n  \n   $input.item.json.LEN =len;\n}\n\n\n\nreturn $input.item;"
+        "jsCode": "// Add a new field called 'myNewField' to the JSON of the item\nvar regnr;\nvar comp;\n\nfor (reg of $input.item.json.body.meta_data) {\n\n   if (reg['key'] == '_billing_pvn_numurs'  ) {\n       regnr = reg['value'];\n   }\n}\n\n\nfor (reg of $input.item.json.body.meta_data) {\n\n   if (reg['key'] == '_billing_uznemuma_nosaukms'  ) {\n       comp = reg['value'];\n   }\n}\n\nif ( comp ) $input.item.json.COMP =  comp;\n   else $input.item.json.COMP =  $input.item.json.body.billing.first_name+ ' '+   $input.item.json.body.billing.last_name;\n\n\nif (regnr) { \n\n  regnr = regnr.trim();\n  len = regnr.length;\n\n  if (len == 13) {\n    $input.item.json.REGNR = regnr.substr(2,len);\n  } else  if (len == 11)  $input.item.json.REGNR = regnr;\n    else  $input.item.json.NONSTANDART = true;\n\n    $input.item.json.CHECKNR = ( $input.item.json.REGNR  ? $input.item.json.REGNR :  regnr ) ;\n  \n    $input.item.json.LEN =len;\n}\n\n\nreturn $input.item;"
       },
       "id": "530ae95d-e1b4-4d8d-a2c4-a4d40e18e204",
       "name": "Code1",
@@ -254,7 +212,7 @@
     },
     {
       "parameters": {
-        "url": "= https://staging.veikals.ir.lv/wp-json/wc/v3/orders/{{ $json.body.id }}",
+        "url": "= https://irdarbnicas.lv/wp-json/wc/v3/orders/{{ $json.body.id }}",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpBasicAuth",
         "options": {
@@ -326,13 +284,13 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 2,
       "position": [
-        600,
-        560
+        620,
+        580
       ]
     },
     {
       "parameters": {
-        "workflowId": "34"
+        "workflowId": "Vid0FoFzaJ6OmdSV"
       },
       "id": "66d0044d-a563-4469-9415-f3043e7f62aa",
       "name": "Avanss",
@@ -352,7 +310,7 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1,
       "position": [
-        1080,
+        1060,
         600
       ]
     },
@@ -383,7 +341,7 @@
             {
               "value1": "={{ $json.body.status }}",
               "operation": "equal",
-              "value2": 404
+              "value2": 400
             }
           ]
         }
@@ -393,13 +351,13 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
-        -180,
-        840
+        -280,
+        760
       ]
     },
     {
       "parameters": {
-        "url": "=https://api.weberp.lv/?r=atvertiedati/search/company&value={{ $('IF_legal').item.json.REGNR }}",
+        "url": "=https://api.weberp.lv/?r=atvertiedati/search/company&isApi=1&value={{ $('IF_legal').item.json.REGNR }}",
         "options": {
           "allowUnauthorizedCerts": true,
           "response": {
@@ -415,37 +373,9 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
       "position": [
-        -400,
-        780
+        -480,
+        760
       ]
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "=https://irekini.lv/api.php?r=invoices/company/create-partner-company&access-token=TVPlsEZjdCj--B2-rK-SKDrZPqU5_ikk&cId=16779",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n  \"D3cCompany\": {\n    \"regcode\": \"{{ $json[\"body\"][\"select2\"][\"results\"][0][\"regcode\"] }}\",\n    \"sepa\": \"\",\n    \"name\": \"{{ $('urapi').item.json.body.select2.results[0]['name'] + ' '+ $('urapi').item.json.body.select2.results[0]['type_name'] }}\",\n    \"typeName\": \"SIA\",\n    \"address\": \"\"\n  },\n  \"InvCompany\": {\n    \"payment_term\": \"0\",\n    \"payment_term_in\": \"0\",\n    \"invoice_email\": \"{{ $('Order').item.json[\"body\"][\"billing\"][\"email\"] }}\"\n  }\n}\n",
-        "options": {
-          "allowUnauthorizedCerts": true,
-          "response": {
-            "response": {
-              "fullResponse": true,
-              "neverError": true
-            }
-          }
-        }
-      },
-      "id": "7763090e-99c1-473a-b57c-c5fef331a570",
-      "name": "HTTP Request6",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 3,
-      "position": [
-        -60,
-        1120
-      ],
-      "notesInFlow": true,
-      "notes": "POST NEW CUSTOMER"
     },
     {
       "parameters": {
@@ -515,48 +445,270 @@
     },
     {
       "parameters": {
+        "workflowId": "CZCvhkb89DMedz94"
+      },
+      "id": "389d5ec4-a3aa-439c-a35f-1d160decc1e6",
+      "name": "Execute Workflow",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        -1040,
+        1080
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://irekini.lv/api.php?r=invoices/company/find-by-reg-code&access-token=TVPlsEZjdCj--B2-rK-SKDrZPqU5_ikk&cId=16779&regcode={{ $json.CHECKNR }}",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "5cf31a11-df28-48c9-b60c-42c3f4453d22",
+      "name": "Check customer",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        120,
+        460
+      ],
+      "notesInFlow": true,
+      "notes": "CHECK CUSTOMER"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Order').item.json.body.billing.email }}",
+        "subject": "IR darbnīcu pasūtījuma kļūda",
+        "message": "=<div>\n<p>Esam saņēmuši nekorektu PVN vai Reģistrācijas numuru! </p>\n\n{{ $('Paraksts').item.json.body.meta.apaksa }}\n</div>",
+        "options": {
+          "appendAttribution": false,
+          "ccList": "notikumi@ir.lv"
+        }
+      },
+      "id": "b257cda0-ca7f-41b7-b1a0-7d11cf771643",
+      "name": "Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -240,
+        1240
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "i8yUhQAx74lvxr0z",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
         "conditions": {
-          "string": [
+          "number": [
             {
-              "value1": "={{ $json.body[\"status\"] }}",
-              "value2": "pending"
-            },
-            {
-              "value1": "={{ $json.body[\"status\"] }}",
-              "value2": "completed"
+              "value1": "={{ $('Code1').item.json.LEN }}",
+              "operation": "equal",
+              "value2": 11
             }
           ]
-        },
-        "combineOperation": "any"
+        }
       },
-      "id": "1c7a6467-f0b1-4a94-b0e0-5cc984ee346c",
+      "id": "08a0c7ab-d8f9-4133-9009-3c8b1e4afe94",
       "name": "IF6",
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
-        -480,
-        540
+        -680,
+        760
       ]
+    },
+    {
+      "parameters": {
+        "url": "=https://irekini.lv/api.php?r=invoices/company/create-partner-company&access-token=TVPlsEZjdCj--B2-rK-SKDrZPqU5_ikk&cId=16779&type=person",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"D3cCompany\": {\n    \"regcode\": \"{{ $('Code1').item.json.CHECKNR }}\",\n    \"name\": \"{{  $('Code1').item.json.COMP }}\",\n    \"is_vat_payer\":0,\n    \"withoutRegCode\":0,\n    \"sepa\": \"\",\n    \"address\": \"{{ $('Order').item.json[\"body\"][\"billing\"][\"address_1\"] }} {{ $('Order').item.json[\"body\"][\"billing\"][\"address_2\"]}} {{ $('Order').item.json[\"body\"][\"billing\"][\"city\"] }} {{ $('Order').item.json[\"body\"][\"billing\"][\"country\"] }}\"\n  },\n  \"InvCompany\": {\n    \"payment_term\": \"0\",\n    \"payment_term_in\": \"0\",\n    \"invoice_email\": \"{{ $('Order').item.json[\"body\"][\"billing\"][\"email\"] }}\"\n  }\n}",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "c6d5ab7e-dce2-46d1-b555-09ba5e7b2f9e",
+      "name": "PARTNER NON VALID CODE",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        120,
+        860
+      ],
+      "notesInFlow": true,
+      "notes": "CREATE PARTNER"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://irekini.lv/api.php?r=invoices/company/create-partner-company&access-token=TVPlsEZjdCj--B2-rK-SKDrZPqU5_ikk&cId=16779",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"D3cCompany\": {\n    \"regcode\": \"{{ $json[\"body\"][\"select2\"][\"results\"][0][\"regcode\"] }}\",\n    \"sepa\": \"{{ $json[\"body\"][\"select2\"][\"results\"][0][\"sepa\"] }}\",\n    \"name\": {{ JSON.stringify($('urapi').item.json.body.select2.results[0]['name']  ) }},\n    \"typeName\": \"{{  $('urapi').item.json.body.select2.results[0]['type_name'] }}\",\n    \"address\": \"{{  $('urapi').item.json.body.select2.results[0]['address'] }}\"\n  },\n  \"InvCompany\": {\n    \"payment_term\": \"0\",\n    \"payment_term_in\": \"0\",\n    \"invoice_email\": \"{{ $('Order').item.json[\"body\"][\"billing\"][\"email\"] }}\"\n  }\n}\n",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "f091abe3-a330-43a5-817a-8ab12fc571a2",
+      "name": "PARTNER VALID CODE1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        -120,
+        980
+      ],
+      "notesInFlow": true,
+      "notes": "POST NEW CUSTOMER"
+    },
+    {
+      "parameters": {
+        "url": "=https://irekini.lv/api.php?r=invoices/company/create-partner-company&access-token=TVPlsEZjdCj--B2-rK-SKDrZPqU5_ikk&cId=16779&type=person",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"D3cCompany\": {\n    \"regcode\": \"\",\n    \"name\": \"{{ ( $('Order').item.json[\"body\"][\"billing\"][\"company\"] ? $('Order').item.json[\"body\"][\"billing\"][\"company\"] :  $('Order').item.json[\"body\"][\"billing\"][\"first_name\"]+' '+$('Order').item.json[\"body\"][\"billing\"][\"last_name\"] )}}\",\n    \"is_vat_payer\":0,\n    \"withoutRegCode\":1,\n    \"sepa\": \"\",\n    \"address\": \"{{ $('Order').item.json[\"body\"][\"billing\"][\"address_1\"] }} {{ $('Order').item.json[\"body\"][\"billing\"][\"address_2\"]}} {{ $('Order').item.json[\"body\"][\"billing\"][\"city\"] }} {{ $('Order').item.json[\"body\"][\"billing\"][\"country\"] }}\"\n  },\n  \"InvCompany\": {\n    \"payment_term\": \"0\",\n    \"payment_term_in\": \"0\",\n    \"invoice_email\": \"{{ $('Order').item.json[\"body\"][\"billing\"][\"email\"] }}\"\n  }\n}",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "6834a353-1c38-4647-8ded-78f1012ca13e",
+      "name": "PARTNER PRIVATE",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        120,
+        680
+      ],
+      "notesInFlow": true,
+      "notes": "CREATE PARTNER"
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "number": [
+            {
+              "name": "order_nr",
+              "value": "={{ $('Webhook').item.json.body.id }}"
+            },
+            {
+              "name": "customer_id",
+              "value": "={{ $json.body.id }}"
+            },
+            {
+              "name": "customer_name",
+              "value": "={{ $('Code1').item.json.COMP }}"
+            }
+          ],
+          "string": [
+            {
+              "name": "remark",
+              "value": "Nekorekts PVN vai reģistrācijas numurs"
+            }
+          ]
+        },
+        "options": {
+          "dotNotation": false
+        }
+      },
+      "id": "3bd237cf-82fc-4a02-b5cc-eb95ac36ddc6",
+      "name": "Set6",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        400,
+        860
+      ]
+    },
+    {
+      "parameters": {
+        "url": "= https://irdarbnicas.lv/wp-json/wp/v2/paraksti/5243",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "1fd93fd2-ac08-4d4f-a782-ba056abb0bde",
+      "name": "Paraksts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        -480,
+        1240
+      ],
+      "notesInFlow": true,
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "ANe97BR4sIiNl0rE",
+          "name": "IR WP API"
+        }
+      },
+      "notes": "READ ORDER"
+    },
+    {
+      "parameters": {
+        "sendTo": "=notikumi@ir.lv",
+        "subject": "IR darbnīcu pasūtījuma kļūda",
+        "message": "=<div>\n<p>Esam saņēmuši nekorektu PVN vai Reģistrācijas numuru! </p>\n{{ $('Order').item.json.id }}\n\n\n</div>",
+        "options": {
+          "appendAttribution": false,
+          "ccList": "notikumi@ir.lv"
+        }
+      },
+      "id": "3559484a-3db7-4af3-a801-e96427917179",
+      "name": "Gmail1",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -40,
+        1240
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "i8yUhQAx74lvxr0z",
+          "name": "Gmail account 2"
+        }
+      }
     }
   ],
   "pinData": {},
   "connections": {
-    "HTTP Request5": {
-      "main": [
-        [
-          {
-            "node": "Switch",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Switch": {
       "main": [
         [
           {
-            "node": "urapi",
+            "node": "IF6",
             "type": "main",
             "index": 0
           }
@@ -570,29 +722,18 @@
         ]
       ]
     },
-    "HTTP Request9": {
-      "main": [
-        [
-          {
-            "node": "Set1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "IF_legal": {
       "main": [
         [
           {
-            "node": "HTTP Request5",
+            "node": "Check customer",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "HTTP Request9",
+            "node": "PARTNER PRIVATE",
             "type": "main",
             "index": 0
           }
@@ -665,7 +806,7 @@
       "main": [
         [
           {
-            "node": "IF6",
+            "node": "Code1",
             "type": "main",
             "index": 0
           }
@@ -745,14 +886,19 @@
       "main": [
         [
           {
-            "node": "HTTP Request9",
+            "node": "PARTNER NON VALID CODE",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Paraksts",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "HTTP Request6",
+            "node": "PARTNER VALID CODE1",
             "type": "main",
             "index": 0
           }
@@ -764,17 +910,6 @@
         [
           {
             "node": "IF4",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "HTTP Request6": {
-      "main": [
-        [
-          {
-            "node": "Set2",
             "type": "main",
             "index": 0
           }
@@ -821,11 +956,95 @@
         ]
       ]
     },
+    "Check customer": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
     "IF6": {
       "main": [
         [
           {
-            "node": "Code1",
+            "node": "urapi",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "PARTNER NON VALID CODE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PARTNER NON VALID CODE": {
+      "main": [
+        [
+          {
+            "node": "Set6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PARTNER VALID CODE1": {
+      "main": [
+        [
+          {
+            "node": "Set2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PARTNER PRIVATE": {
+      "main": [
+        [
+          {
+            "node": "Set1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set6": {
+      "main": [
+        [
+          {
+            "node": "IF2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Paraksts": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail": {
+      "main": [
+        [
+          {
+            "node": "Gmail1",
             "type": "main",
             "index": 0
           }
@@ -844,16 +1063,17 @@
     "timezone": "Europe/Riga",
     "executionOrder": "v0"
   },
-  "versionId": "fba82f90-ef26-4504-90aa-596cf5e5c989",
-  "id": "33",
+  "versionId": "716a7976-2119-4880-917f-d1c5aa781c44",
   "meta": {
+    "templateCredsSetupCompleted": true,
     "instanceId": "0f064bae8ef402bc77bc2dfa9bf8ed7b60d49005d687ffae7941232c8a9d8d44"
   },
+  "id": "33",
   "tags": [
     {
-      "id": "4",
       "createdAt": "2023-08-10T06:09:50.889Z",
       "updatedAt": "2023-08-10T06:09:50.889Z",
+      "id": "4",
       "name": "IR"
     }
   ]
