@@ -8,50 +8,25 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        -440,
-        120
+        -840,
+        20
       ],
       "disabled": true
     },
     {
-      "parameters": {
-        "method": "POST",
-        "url": "= https://irdarbnicas.lv/wp-json/jet-rel/11",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpBasicAuth",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n\t\"parent_id\": {{ $('Item Lists').item.json.product_id}},\n\t\"child_id\": {{ $json.body.id}},\n\t\"context\": \"child\",\n\t\"store_items_type\": \"update\"\n\n}",
-        "options": {
-          "allowUnauthorizedCerts": true,
-          "response": {
-            "response": {
-              "fullResponse": true,
-              "neverError": true
-            }
-          }
-        }
-      },
-      "id": "372ecae0-4458-4813-a05d-fbd09f664a6c",
-      "name": "Relation Prod",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 3,
+      "parameters": {},
+      "id": "1d30d579-08d3-4e18-a585-294c56198968",
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
       "position": [
-        880,
-        280
-      ],
-      "notesInFlow": true,
-      "credentials": {
-        "httpBasicAuth": {
-          "id": "ANe97BR4sIiNl0rE",
-          "name": "IR WP API"
-        }
-      },
-      "notes": "READ ORDER"
+        -820,
+        400
+      ]
     },
     {
       "parameters": {
-        "url": "= https://irdarbnicas.lv/wp-json/wc/v3/orders/{{ $json.body.id }}",
+        "url": "= https://irdarbnicas.lv/wp-json/wc/v3/orders/{{ $json.order_nr}}",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpBasicAuth",
         "options": {
@@ -64,13 +39,13 @@
           }
         }
       },
-      "id": "24666d3d-2525-4a8b-a4b2-56cda8b9ae12",
+      "id": "84142c66-424e-4f6a-972e-1802a24e4b8c",
       "name": "Order1",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
       "position": [
-        -180,
-        280
+        -360,
+        100
       ],
       "notesInFlow": true,
       "credentials": {
@@ -83,94 +58,282 @@
     },
     {
       "parameters": {
-        "url": "= https://staging.veikals.ir.lv/wp-json/wp/v2/pieteikumi/",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpBasicAuth",
-        "options": {
-          "allowUnauthorizedCerts": true,
-          "response": {
-            "response": {
-              "fullResponse": true,
-              "neverError": true
-            }
-          }
-        }
-      },
-      "id": "4b5551db-7f30-452a-a41b-f60baa9645e6",
-      "name": "Order2",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 3,
-      "position": [
-        300,
-        20
-      ],
-      "notesInFlow": true,
-      "credentials": {
-        "httpBasicAuth": {
-          "id": "ANe97BR4sIiNl0rE",
-          "name": "IR WP API"
-        }
-      },
-      "notes": "READ ORDER"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "= https://irdarbnicas.lv/wp-json/wp/v2/pieteikumi/",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpBasicAuth",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n\n\"status\": \"draft\",\n\"type\": \"pieteikumi\",\n\"title\": \"{{ $json[\"participants\"][\"vards_uzvards\"] }}\",\n\"meta\": \n    {\n\n     \"vards\": \"{{ $json[\"participants\"][\"vards_uzvards\"] }}\",\n     \"epasts\":  \"{{ $json[\"participants\"][\"epasts\"] }}\",\n     \"telefons\":  \"{{ $json[\"participants\"][\"telefons\"] }}\",\n     \"statuss\": \"Nepabeigts\",\n     \"komentars\": \"testing\"\n\n     }\n}",
-        "options": {
-          "allowUnauthorizedCerts": true,
-          "response": {
-            "response": {
-              "fullResponse": true,
-              "neverError": true
-            }
-          }
-        }
-      },
-      "id": "38519f05-c853-4330-aec0-e3df7e2aa3cd",
-      "name": "New Booking",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 3,
-      "position": [
-        660,
-        280
-      ],
-      "notesInFlow": true,
-      "credentials": {
-        "httpBasicAuth": {
-          "id": "ANe97BR4sIiNl0rE",
-          "name": "IR WP API"
-        }
-      },
-      "notes": "READ ORDER"
-    },
-    {
-      "parameters": {
         "fields": {
           "values": [
             {
-              "name": "items",
-              "type": "arrayValue",
-              "arrayValue": "={{ $('Order1').item.json[\"body\"][\"line_items\"] }}"
+              "name": "pnumurs",
+              "stringValue": "={{ $('Order1').item.json.body.id }}"
+            },
+            {
+              "name": "pvards",
+              "stringValue": "={{ $('Order1').item.json.body.billing.first_name  }}  "
+            },
+            {
+              "name": "ptelefons",
+              "stringValue": "={{ $('Order1').item.json.body.billing.phone  }}  "
+            },
+            {
+              "name": "pemails",
+              "stringValue": "={{ $('Order1').item.json.body.billing.email  }}  "
+            },
+            {
+              "name": "puznemums",
+              "stringValue": "="
+            },
+            {
+              "name": "pdatums",
+              "stringValue": "={{ $('Order1').item.json.body.date_created  }}  "
+            },
+            {
+              "name": "pkomentars",
+              "stringValue": "={{ $('Order1').item.json.body.customer_note}}  "
+            },
+            {
+              "name": "puzvards",
+              "stringValue": "={{ $('Order1').item.json.body.billing.last_name  }}  "
+            },
+            {
+              "name": "psumma",
+              "type": "numberValue",
+              "numberValue": "={{ $('Order1').item.json.body.total}}  "
             }
           ]
         },
-        "include": "selected",
-        "includeFields": "body.id",
         "options": {}
       },
-      "id": "5b34c803-9232-4978-8c03-a77d479f8a6e",
+      "id": "7f887e5b-6cf0-48cc-8f57-18fb831d8f45",
       "name": "Edit Fields",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.1,
       "position": [
+        -480,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1j2S0H3fqVlezYuv9UBFjzCrrQnkFwiV5i2OGnlAa1L0",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Lapa1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1j2S0H3fqVlezYuv9UBFjzCrrQnkFwiV5i2OGnlAa1L0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Dalībnieka vārds": "={{ $json.participants.vards_uzvards }}",
+            "Dalībnieka e-pasts": "={{ $json.participants.epasts }}",
+            "Dalībnieka tālr. nr.": "={{ $json.participants.telefons }}",
+            "Darbnīca": "={{ $json.name }}",
+            "Statuss": "={{ $('Start').item.json.service_type }}",
+            "Pieteicēja vārds": "={{ $json.pvards }}",
+            "Pieteicēja tālr. nr.": "={{ $json.ptelefons }}",
+            "Pieteicēja e-pasts": "={{ $json.pemails }}",
+            "Uzņēmuma nosaukums": "={{ $('Start').item.json.customer_name }}",
+            "Pasūtījuma ID": "={{ $json.pnumurs }}",
+            "Pasūtījuma datums": "={{ $json.pdatums }}",
+            "Piezīmes": "={{ $json.pkomentars }}",
+            "Rēķina Nr.": "={{ $('Start').item.json.invoice_nr_full }}",
+            "Pieteicēja uzvārds": "={{ $json.puzvards }}",
+            "Rēķina summa": "={{ $('Start').item.json.invocice_total.toFixed(2) }}",
+            "Gads": "={{ $json.pyear }}",
+            "Mēnesis": "={{ $json.pmonth }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Dalībnieka vārds",
+              "displayName": "Dalībnieka vārds",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Dalībnieka e-pasts",
+              "displayName": "Dalībnieka e-pasts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Dalībnieka tālr. nr.",
+              "displayName": "Dalībnieka tālr. nr.",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Darbnīca",
+              "displayName": "Darbnīca",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Statuss",
+              "displayName": "Statuss",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Rēķina Nr.",
+              "displayName": "Rēķina Nr.",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Pieteicēja vārds",
+              "displayName": "Pieteicēja vārds",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Pieteicēja uzvārds",
+              "displayName": "Pieteicēja uzvārds",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Pieteicēja tālr. nr.",
+              "displayName": "Pieteicēja tālr. nr.",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Pieteicēja e-pasts",
+              "displayName": "Pieteicēja e-pasts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Uzņēmuma nosaukums",
+              "displayName": "Uzņēmuma nosaukums",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Rēķina summa",
+              "displayName": "Rēķina summa",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Pasūtījuma ID",
+              "displayName": "Pasūtījuma ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Pasūtījuma datums",
+              "displayName": "Pasūtījuma datums",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Piezīmes",
+              "displayName": "Piezīmes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Mēnesis",
+              "displayName": "Mēnesis",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Gads",
+              "displayName": "Gads",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "92ece2aa-f954-4987-86e4-288046b027d4",
+      "name": "Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
         40,
-        280
+        400
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "6OCPtYLn2JwWitAP",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "body.line_items",
+        "options": {}
+      },
+      "id": "354dcae3-fe27-440f-9915-f424c7fccc4a",
+      "name": "Item Lists1",
+      "type": "n8n-nodes-base.itemLists",
+      "typeVersion": 3.1,
+      "position": [
+        -140,
+        100
       ]
     },
     {
@@ -180,101 +343,58 @@
             {
               "name": "participants",
               "type": "arrayValue",
-              "arrayValue": "={{ $json[\"items\"][0][\"meta_data\"][1][\"value\"] }}"
+              "arrayValue": "={{ JSON.parse($jmespath($json.meta_data , \"[?key == 'Dalībnieki'].value\")) }}"
             }
           ]
         },
-        "include": "selected",
-        "includeFields": "id, items[0].product_id",
         "options": {}
       },
-      "id": "e9afd86d-3034-4bf5-bbe0-d8748d8c7be0",
-      "name": "Edit Fields1",
+      "id": "bf111b1e-0c78-446c-885e-d1ed0d0f2b08",
+      "name": "Edit Fields3",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.1,
       "position": [
-        260,
-        280
+        100,
+        100
       ]
-    },
-    {
-      "parameters": {
-        "url": "=https://staging.veikals.ir.lv/wp-json/jet-rel/11",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpBasicAuth",
-        "options": {
-          "allowUnauthorizedCerts": true,
-          "response": {
-            "response": {
-              "fullResponse": true,
-              "neverError": true
-            }
-          }
-        }
-      },
-      "id": "a80302d7-4606-49f7-982e-961b7e7896fc",
-      "name": "Relation Prod1",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 3,
-      "position": [
-        560,
-        520
-      ],
-      "notesInFlow": true,
-      "credentials": {
-        "httpBasicAuth": {
-          "id": "ANe97BR4sIiNl0rE",
-          "name": "IR WP API"
-        }
-      },
-      "notes": "READ ORDER"
     },
     {
       "parameters": {
         "fieldToSplitOut": "participants",
-        "include": "selectedOtherFields",
-        "fieldsToInclude": "id, product_id",
+        "include": "allOtherFields",
         "options": {}
       },
-      "id": "a5d4a3ab-1081-4004-b929-41beb6d977b0",
-      "name": "Item Lists",
+      "id": "75f0d828-fdfe-4636-9e0d-ea610543973d",
+      "name": "Item Lists2",
       "type": "n8n-nodes-base.itemLists",
-      "typeVersion": 3,
+      "typeVersion": 3.1,
       "position": [
-        460,
-        280
+        340,
+        100
       ]
     },
     {
-      "parameters": {},
-      "id": "1d30d579-08d3-4e18-a585-294c56198968",
-      "name": "Execute Workflow Trigger",
-      "type": "n8n-nodes-base.executeWorkflowTrigger",
-      "typeVersion": 1,
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Add a new field called 'myNewField' to the JSON of the item\nconst year =  $input.item.json.pdatums.split('-')[0];\nconst month =  $input.item.json.pdatums.split('-')[1];\n\n$input.item.json.pyear = year;\n$input.item.json.pmonth = month;\n\nreturn $input.item;"
+      },
+      "id": "14ad010e-fe0f-4397-9242-f1efc1e89e0a",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
       "position": [
-        -420,
-        420
+        -200,
+        400
       ]
     }
   ],
   "pinData": {},
   "connections": {
-    "When clicking \"Execute Workflow\"": {
-      "main": [
-        [
-          {
-            "node": "Order1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Order1": {
       "main": [
         [
           {
-            "node": "Edit Fields",
+            "node": "Item Lists1",
             "type": "main",
             "index": 0
           }
@@ -285,51 +405,62 @@
       "main": [
         [
           {
-            "node": "Edit Fields1",
+            "node": "Code",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Edit Fields1": {
+    "Item Lists1": {
       "main": [
         [
           {
-            "node": "Item Lists",
+            "node": "Edit Fields3",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "New Booking": {
+    "Edit Fields3": {
       "main": [
         [
           {
-            "node": "Relation Prod",
+            "node": "Item Lists2",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Item Lists": {
+    "Item Lists2": {
       "main": [
         [
           {
-            "node": "New Booking",
+            "node": "Edit Fields",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Execute Workflow Trigger": {
+    "Start": {
       "main": [
         [
           {
             "node": "Order1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
             "type": "main",
             "index": 0
           }
@@ -341,11 +472,12 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "a8ab2354-8249-43ae-b315-b13b25c0c002",
-  "id": "CZCvhkb89DMedz94",
+  "versionId": "acac42b1-ec2d-4f8d-9831-dc44919949ae",
   "meta": {
+    "templateCredsSetupCompleted": true,
     "instanceId": "0f064bae8ef402bc77bc2dfa9bf8ed7b60d49005d687ffae7941232c8a9d8d44"
   },
+  "id": "CZCvhkb89DMedz94",
   "tags": [
     {
       "createdAt": "2023-08-10T06:09:50.889Z",
