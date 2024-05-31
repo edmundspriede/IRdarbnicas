@@ -1,39 +1,4 @@
 <?php
-/**
- * Theme functions and definitions.
- *
- * For additional information on potential customization options,
- * read the developers' documentation:
- *
- * https://developers.elementor.com/docs/hello-elementor-theme/
- *
- * @package HelloElementorChild
- */
-
-if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly.
-}
-
-define( 'HELLO_ELEMENTOR_CHILD_VERSION', '2.0.0' );
-
-/**
- * Load child theme scripts & styles.
- *
- * @return void
- */
-function hello_elementor_child_scripts_styles() {
-
-	wp_enqueue_style(
-		'hello-elementor-child-style',
-		get_stylesheet_directory_uri() . '/style.css',
-		[
-			'hello-elementor-theme-style',
-		],
-		HELLO_ELEMENTOR_CHILD_VERSION
-	);
-
-}
-add_action( 'wp_enqueue_scripts', 'hello_elementor_child_scripts_styles', 20 );
 //EP pievienojam grozam visus produktus no upsell formas
 
 add_filter("jet-form-builder/action/redirect_to_woo_checkout/add-to-cart", 'formbuilder_add_to_cart' , 20 , 5);    
@@ -65,7 +30,8 @@ function formbuilder_add_to_cart($params) {
              $dalibnieki = '';
              foreach($params[4]['jfb_form_data']['dalibnieku_dati'] as $k => $v) {
              
-                   $dalibnieki .= implode('; ' , $v)."<br />";
+                   //$dalibnieki .= implode('; ' , $v)."<br />";
+                     $dalibnieki .= $v['vards_uzvards']."<br />";
              }
              
              $cartdata['dalibnieki'] = $dalibnieki;
@@ -74,18 +40,28 @@ function formbuilder_add_to_cart($params) {
     
     
     //EP pievienojam galveno produktu
-  
     $product = wc_get_product($params[0]);
-    if ($product->is_type('variable')) {
+	$datums = $product->get_meta('datums_');
+    $cartdata['datums'] = date("d.m.Y", (int)$datums ); 
+   
+    if (get_post_type($params[0]) == 'product') {
+		
+ 
+		
+
+    //EP ja pamatprodukts ir ar variācijām izvēlamies normal		
+	 	
       
-        $variations = $product->get_available_variations();
-        $normal = array_filter( $variations, "filter_normal" );
-        $normal = current($normal);
-        
-        $datums = $product->get_meta('datums_');
-         $cartdata['datums'] = date("d.m.Y", (int)$datums );
-        WC()->cart->add_to_cart( $product->id, $params[4]['jfb_form_data']['skaits'] ,  $normal["variation_id"], array(),$cartdata); 
-        
+      
+	    if ($product->get_type() == 'variable') {	
+		    
+        	$variations = $product->get_available_variations();
+        	$normal = array_filter( $variations, "filter_normal" );
+        	$normal = current($normal);
+		 
+            WC()->cart->add_to_cart( $product->id, $params[4]['jfb_form_data']['skaits'] ,  $normal["variation_id"], array(),$cartdata); 
+		} else		
+			WC()->cart->add_to_cart($params[0], $params[4]['jfb_form_data']['skaits'] , 0 , array(),$cartdata);         
     } else {
    
         WC()->cart->add_to_cart($params[0], $params[4]['jfb_form_data']['skaits'] , 0 , array(),$cartdata); 
@@ -101,9 +77,9 @@ function formbuilder_add_to_cart($params) {
          
                 
                         $variation = wc_get_product($v);
-                        $product  = $variation->get_parent_id();
-                        $product =  wc_get_product($product);
-                        $datums = $product->get_meta('datums_');
+                        $parent_id  = $variation->get_parent_id();
+                        $parent =  wc_get_product($parent_id);
+                        $datums = $parent->get_meta('datums_');
                         $cartdata['datums'] = date("d.m.Y", (int)$datums );
                         WC()->cart->add_to_cart($v, $params[4]['jfb_form_data']['skaits'] , 0, array(), $cartdata); 
             }  
@@ -134,6 +110,13 @@ function formbuilder_get_item_data( $item_data, $cart_item_data ) {
      'value' =>  $cart_item_data['datums'] 
  );
  }
+ if( isset( $cart_item_data['cikls'] ) ) {
+     $item_data[] = array(
+     'key' => 'Cikls',
+     'value' =>  $cart_item_data['cikls'] 
+ );
+ }	
+	
  return $item_data;
 }
 
@@ -147,6 +130,12 @@ function formbuilder_checkout_create_order_line_item( $item, $cart_item_key, $va
     $values['dalibnieki_serial'], true );
  
  }
+ if( isset( $values['cikls'] ) ) {
+ $item->add_meta_data(
+    'Cikls' ,
+    $values['cikls'], true );
+ 
+ }	
   //$item->add_meta_data(    'Datums' ,    $values['datums'], true ); 
 }
 add_action( 'woocommerce_checkout_create_order_line_item', 'formbuilder_checkout_create_order_line_item', 10, 4 );
@@ -239,6 +228,8 @@ function ir_after_order_complete( $order_id ) {
       // URL of the web service
       $url = 'https://n8n.m50.lv:5678/webhook/5aa23911-6370-40bc-b97e-e8812b5c8459';
 
+	  //echo($url)  ;
+	  //exit;
       // Data to send in the POST request
       $data = array(
        'order_nr' => $order_id,
@@ -267,7 +258,40 @@ function ir_after_order_complete( $order_id ) {
 
       // Close cURL session
       curl_close($ch);
-   }
+   } elseif ( $payment_title == 'Everypay'  ||  $payment_title == 'everypay'  ) {
+	   
+	     // URL of the web service
+      $url = 'https://n8n.m50.lv:5678/webhook/01c7f401-2fc3-475c-add3-3c3158ffdf1a';
+
+      // Data to send in the POST request
+      $data = array(
+       'id' => $order_id,
+   
+       );
+
+      // Initialize cURL session
+      $ch = curl_init($url);
+
+      // Set cURL options for the POST request
+      curl_setopt($ch, CURLOPT_POST, 1);
+      curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  
+      // Disable SSL verification
+      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+      curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+
+      // Execute the cURL session and store the response in $response
+      $response = curl_exec($ch);
+
+      // Check for cURL errors
+      if (curl_errno($ch)) {
+         echo 'cURL error: ' . curl_error($ch);
+      }
+
+      // Close cURL session
+      curl_close($ch); 
+   }	   
    
    return true;
 }
@@ -305,46 +329,143 @@ function exclude_product_from_coupon_by_attribute($valid, $product, $coupon, $va
     }
     
     
-    //$taxonomy = 'pa_upsell';
-    //$term_slugs = array('(ar atlaidi)');
-  
-   // if ($product->id == 1934 ) return false;
-  
-   
-    /**
-     * check if the product has the attribute and value 
-     * and if yes restrict this product from the coupon
-     */
-    //echo($product->id);
-    //echo($product->get_attribute($taxonomy));
-  
- //   if(in_array($product->get_attribute($taxonomy), $term_slugs)) {
-   //     $valid = false;
-      
-
-    /**
-     * otherwise check if its a variation product
-     */
-   // } //elseif($product->parent_id) {
-        /**
-         * set the parent product
-         */
-       // $parent = wc_get_product($product->parent_id);
-        
-        /**
-         * check if parent has an attribute with this value
-         */
-     //   if(in_array($parent->get_attribute($taxonomy), $term_slugs)) {
-      //      $valid = false;
-     //   }
-
-    /**
-     * for all other products which does not have the attribute with the value
-     * set the coupon to valid
-     */
     
 
     return $valid;
 }
 
+add_action( 'jet-form-builder/custom-action/disable-checkout-redirect', function() {
 
+	//load cart before adding product to cart
+	add_action( 'jet-form-builder/action/redirect_to_woo_checkout/before-add', function() {
+		WC()->cart->get_cart();
+	}, 0 );
+
+	//do not remove product from cart
+	remove_action(
+		'jet-form-builder/action/redirect_to_woo_checkout/before-add',
+		array( \Jet_FB_Woo\Plugin::instance()->wc, 'on_before_add_to_cart' ),
+		10
+	);
+
+	
+
+} );
+
+
+function remove_product_check( $cart_item_key, $cart ) {
+
+    //print "<pre>";
+    $product_id = $cart->cart_contents[ $cart_item_key ]['product_id']; 
+	$product = wc_get_product( $product_id );
+    $atttr =   $product->get_attribute('pa_upsell');
+
+    
+};
+add_action( 'woocommerce_remove_cart_item', 'remove_product_check', 10, 2 );
+
+// Hook to modify the remove link for products in the cart
+add_filter('woocommerce_cart_item_remove_link', 'custom_cart_item_remove_link', 10, 2);
+
+function custom_cart_item_remove_link($link, $cart_item_key) {
+ 
+    $cart = WC()->cart;
+
+    // Get cart item
+    $cart_item = $cart->get_cart_item($cart_item_key);
+
+    // Check if the product can be removed
+    
+    // Check if the product can be removed
+    $product = $cart_item['data'];
+	
+	$product_id = $cart->cart_contents[ $cart_item_key ]['product_id'];
+ 
+    if ($variation = $cart_item['variation_id']){
+		$product_id = $variation;
+	}
+	
+	
+	
+	$product = wc_get_product( $product_id );
+	
+	//echo($product->get_type());
+	
+	$normal = false;
+    
+	//EP count cikls 
+	$cikls = 0;
+	foreach ( $cart->get_cart() as $key => $cart_item_cikls ) {
+		if ($cart_item_cikls["cikls"] == true) $cikls++;
+	}	
+	
+	//EP check for attribute p
+	if ($product) {
+        // Get the product attributes
+        $attributes = $product->get_attributes();
+		if ($attributes['pa_upsell'] === 'normal-2' ) $normal = true;
+        //echo($normal);
+        
+    }
+	
+    if (isset($cart_item['cikls']) && ($product->get_type() == "simple"  ||  $normal   )  && $cikls != 1 )  return '';
+	return $link;
+}
+
+
+
+// Remove product base from product permalinks
+function custom_remove_product_base($permalink, $post, $leavename) {
+    if ($post->post_type == 'product' && 'publish' == $post->post_status) {
+        $permalink = str_replace('/notikums/', '/', $permalink); // Change 'product' to your desired base
+    }
+    return $permalink;
+}
+//add_filter('post_type_link', 'custom_remove_product_base', 10, 3);
+
+// Flush rewrite rules to apply changes
+function custom_flush_rewrite_rules() {
+    flush_rewrite_rules();
+}
+add_action('after_switch_theme', 'custom_flush_rewrite_rules');
+
+//register number validation
+
+function wpdesk_fcf_validate_regnumber( $field_label, $value ) {
+	
+	$patternvat = '/^(AT|BE|BG|CY|CZ|DE|DK|EE|EL|ES|FI|FR|GB|HR|HU|IE|IT|LT|LU|LV|MT|NL|PL|PT|RO|SE|SI|SK)[0-9A-Z]{11}$/';
+	$patternur = '/^[0-9]{11}$/';
+    
+		
+    // Perform the regex match
+    if (preg_match($patternvat, $value)) {
+        $vatnr = true; // VAT number is valid
+    } else {
+        $vatnr = false; // VAT number is not valid
+    }
+	
+    if (preg_match($patternur, $value)) {
+        $urnr = true; // VAT number is valid
+    } else {
+        $urnr = false; // VAT number is not valid
+    }
+
+	
+    if ( !$vatnr  && !$urnr ) {
+        wc_add_notice( sprintf( '%s ir nederīgs.', '<strong>' . $field_label . '</strong>' ), 'error' );
+    }
+}
+
+add_filter( 'flexible_checkout_fields_custom_validation', 'wpdesk_fcf_custom_validation_regnumber' );
+/**
+ * Add custom number validation
+ *
+ */
+function wpdesk_fcf_custom_validation_regnumber( $custom_validation ) {
+    $custom_validation['regnumber'] = array(
+        'label'     => 'Reģistrācijas numurs',
+        'callback'  => 'wpdesk_fcf_validate_regnumber'
+    );
+
+    return $custom_validation;
+}
