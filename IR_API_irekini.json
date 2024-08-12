@@ -23,13 +23,13 @@
           ]
         }
       },
-      "id": "d4ebd206-4112-47d2-bd42-c65841767817",
+      "id": "7d2dc965-0a26-412e-84d6-8792a0e1eea5",
       "name": "Switch",
       "type": "n8n-nodes-base.switch",
       "typeVersion": 1,
       "position": [
-        -780,
-        1040
+        720,
+        1080
       ],
       "notesInFlow": true,
       "notes": "CHECK NEW PARTNER"
@@ -57,13 +57,13 @@
           "dotNotation": false
         }
       },
-      "id": "e6acc586-db82-4106-ad6b-454035ff9770",
+      "id": "55ea3550-3f85-43bd-8f0c-86f4079a12b0",
       "name": "Set1",
       "type": "n8n-nodes-base.set",
       "typeVersion": 2,
       "position": [
-        400,
-        660
+        1900,
+        700
       ]
     },
     {
@@ -89,13 +89,13 @@
           "dotNotation": false
         }
       },
-      "id": "6e43a04a-0324-4378-be78-246a25cc4793",
+      "id": "e781215e-d528-49d8-a07a-361dfc3d72d1",
       "name": "Set2",
       "type": "n8n-nodes-base.set",
       "typeVersion": 2,
       "position": [
-        120,
-        1080
+        1620,
+        1120
       ]
     },
     {
@@ -109,30 +109,16 @@
           ]
         }
       },
-      "id": "a211e4f5-c678-4c08-b7b6-1de6af969c03",
+      "id": "9c1faf35-8a22-4aba-9bb5-4846b905bae6",
       "name": "IF_legal",
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
-        -200,
-        300
+        1300,
+        360
       ],
       "notesInFlow": true,
       "notes": "LEGAL COMPANY ?"
-    },
-    {
-      "parameters": {
-        "mode": "runOnceForEachItem",
-        "jsCode": "// Add a new field called 'myNewField' to the JSON of the item\nvar regnr;\nvar comp;\n\nfor (reg of $input.item.json.body.meta_data) {\n\n   if (reg['key'] == '_billing_pvn_numurs'  ) {\n       regnr = reg['value'];\n   }\n}\n\n\nfor (reg of $input.item.json.body.meta_data) {\n\n   if (reg['key'] == '_billing_uznemuma_nosaukms'  ) {\n       comp = reg['value'];\n   }\n}\n\nif ( comp ) $input.item.json.COMP =  comp;\n   else $input.item.json.COMP =  $input.item.json.body.billing.first_name+ ' '+   $input.item.json.body.billing.last_name;\n\n\nif (regnr) { \n\n  regnr = regnr.trim();\n  len = regnr.length;\n\n  if (len == 13) {\n    $input.item.json.REGNR = regnr.substr(2,len);\n  } else  if (len == 11)  $input.item.json.REGNR = regnr;\n    else  $input.item.json.NONSTANDART = true;\n\n    $input.item.json.CHECKNR = ( $input.item.json.REGNR  ? $input.item.json.REGNR :  regnr ) ;\n  \n    $input.item.json.LEN =len;\n}\n\n\nreturn $input.item;"
-      },
-      "id": "530ae95d-e1b4-4d8d-a2c4-a4d40e18e204",
-      "name": "Code1",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 1,
-      "position": [
-        -440,
-        300
-      ]
     },
     {
       "parameters": {
@@ -145,13 +131,13 @@
           ]
         }
       },
-      "id": "e156a9fc-02e3-4341-a81d-1fe66f31887a",
+      "id": "9c972c0b-a913-4a14-aef9-091065d56707",
       "name": "IF2",
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
-        440,
-        400
+        1940,
+        440
       ]
     },
     {
@@ -169,13 +155,13 @@
           }
         }
       },
-      "id": "7ea7c5a6-4988-4bd8-a316-5c073730203c",
+      "id": "05a3b65b-01b7-4be3-994d-da7f0b7ff748",
       "name": "Order",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
       "position": [
-        -1140,
-        320
+        180,
+        200
       ],
       "notesInFlow": true,
       "credentials": {
@@ -200,13 +186,13 @@
           "dotNotation": false
         }
       },
-      "id": "61729f06-8d34-4207-9b52-97300a579b59",
+      "id": "436bd9cf-e691-4cfb-bd44-2b2eb0cc26aa",
       "name": "Set",
       "type": "n8n-nodes-base.set",
       "typeVersion": 2,
       "position": [
-        620,
-        360
+        2120,
+        400
       ]
     },
     {
@@ -223,13 +209,13 @@
           "dotNotation": false
         }
       },
-      "id": "fba323c8-5e47-4a39-87c1-f70a2be1ff25",
+      "id": "5a221740-6b01-43f9-abaa-7a130403ed6e",
       "name": "Set3",
       "type": "n8n-nodes-base.set",
       "typeVersion": 2,
       "position": [
-        620,
-        580
+        2120,
+        620
       ]
     },
     {
@@ -237,13 +223,13 @@
         "workflowId": "Vid0FoFzaJ6OmdSV",
         "options": {}
       },
-      "id": "66d0044d-a563-4469-9415-f3043e7f62aa",
+      "id": "9ad56307-abb6-4cb0-b429-9564862cfa38",
       "name": "Avanss",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1,
       "position": [
-        1060,
-        940
+        2560,
+        980
       ]
     },
     {
@@ -251,13 +237,13 @@
         "workflowId": "N4bX7ICIlEDvI32H",
         "options": {}
       },
-      "id": "3cee9600-fe13-436d-b1fb-22dc7ba01615",
+      "id": "159b1f88-7ef5-4405-8e4f-ea49a5ed9943",
       "name": "Serviss",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1,
       "position": [
-        1060,
-        600
+        2560,
+        640
       ]
     },
     {
@@ -271,13 +257,13 @@
           ]
         }
       },
-      "id": "02229e81-b1a1-46fb-a769-28808289431c",
+      "id": "ba45b130-b216-4797-9494-8b3f2b215598",
       "name": "IF3",
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
-        860,
-        800
+        2360,
+        840
       ]
     },
     {
@@ -292,13 +278,13 @@
           ]
         }
       },
-      "id": "4d103926-6926-485f-a5a7-4f6a26889ee5",
+      "id": "8ba84178-4de9-47d8-8341-032374106a7a",
       "name": "IF4",
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
-        -280,
-        760
+        1220,
+        800
       ]
     },
     {
@@ -314,13 +300,13 @@
           }
         }
       },
-      "id": "a212e1ac-7dd9-446b-8e43-76fc9815f9b2",
+      "id": "0bfd8eda-536f-4f17-9575-14e3b3512cab",
       "name": "urapi",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
       "position": [
-        -480,
-        760
+        1020,
+        800
       ]
     },
     {
@@ -334,13 +320,13 @@
           ]
         }
       },
-      "id": "4122a975-96dc-4181-810f-99a8508d3f00",
+      "id": "3bad2101-4b00-40ed-8ade-2ad85062334d",
       "name": "IF5",
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
-        380,
-        1080
+        1880,
+        1120
       ]
     },
     {
@@ -357,13 +343,13 @@
           "dotNotation": false
         }
       },
-      "id": "1c15e3e3-1b15-4279-bf35-0ca8a7aaa053",
+      "id": "5379cd5a-9b86-4cfe-9c11-c06acf32c1af",
       "name": "Set4",
       "type": "n8n-nodes-base.set",
       "typeVersion": 2,
       "position": [
-        580,
-        940
+        2080,
+        980
       ]
     },
     {
@@ -380,13 +366,13 @@
           "dotNotation": false
         }
       },
-      "id": "92261786-50cf-4141-9cdf-8c24a7849422",
+      "id": "3383bb98-0d3c-491a-b972-fa1ebff4cfb7",
       "name": "Set5",
       "type": "n8n-nodes-base.set",
       "typeVersion": 2,
       "position": [
-        580,
-        1140
+        2080,
+        1180
       ]
     },
     {
@@ -402,41 +388,16 @@
           }
         }
       },
-      "id": "5cf31a11-df28-48c9-b60c-42c3f4453d22",
+      "id": "879f8b38-b412-4b75-b58b-b3b82ed88797",
       "name": "Check customer",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
       "position": [
-        120,
-        460
+        1620,
+        500
       ],
       "notesInFlow": true,
       "notes": "CHECK CUSTOMER"
-    },
-    {
-      "parameters": {
-        "sendTo": "={{ $('Order').item.json.body.billing.email }}",
-        "subject": "IR darbnīcu pasūtījuma kļūda",
-        "message": "=<style>\np {padding: 10px; }\n</style>\n<div>\n<p>Esam saņēmuši nekorektu PVN vai Reģistrācijas numuru! </p>\n\n{{ $('Paraksts').item.json.body.meta.apaksa }}\n</div>",
-        "options": {
-          "appendAttribution": false,
-          "ccList": "notikumi@ir.lv"
-        }
-      },
-      "id": "b257cda0-ca7f-41b7-b1a0-7d11cf771643",
-      "name": "Gmail",
-      "type": "n8n-nodes-base.gmail",
-      "typeVersion": 2.1,
-      "position": [
-        -120,
-        1280
-      ],
-      "credentials": {
-        "gmailOAuth2": {
-          "id": "i8yUhQAx74lvxr0z",
-          "name": "Gmail account 2"
-        }
-      }
     },
     {
       "parameters": {
@@ -450,13 +411,13 @@
           ]
         }
       },
-      "id": "08a0c7ab-d8f9-4133-9009-3c8b1e4afe94",
+      "id": "bab2506a-92a5-45cf-ac90-ff60452f4fa4",
       "name": "IF6",
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
-        -680,
-        760
+        800,
+        800
       ]
     },
     {
@@ -474,13 +435,13 @@
           }
         }
       },
-      "id": "c6d5ab7e-dce2-46d1-b555-09ba5e7b2f9e",
+      "id": "2bc528bf-5965-481f-bc88-072f19bd7acc",
       "name": "PARTNER NON VALID CODE",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
       "position": [
-        120,
-        860
+        1620,
+        900
       ],
       "notesInFlow": true,
       "notes": "CREATE PARTNER"
@@ -491,7 +452,7 @@
         "url": "=https://irekini.lv/api.php?r=invoices/company/create-partner-company&access-token=8b7imvkmVIlvfntWNLN1IWs2AYtvZ-fJ&cId=16779",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"D3cCompany\": {\n    \"regcode\": \"{{ $json[\"body\"][\"select2\"][\"results\"][0][\"regcode\"] }}\",\n    \"sepa\": \"{{ $json[\"body\"][\"select2\"][\"results\"][0][\"sepa\"] }}\",\n    \"name\": {{ JSON.stringify($('urapi').item.json.body.select2.results[0]['name']  ) }},\n    \"typeName\": \"{{  $('urapi').item.json.body.select2.results[0]['type_name'] }}\",\n    \"address\": \"{{  $('urapi').item.json.body.select2.results[0]['address'] }}\"\n  },\n  \"InvCompany\": {\n    \"payment_term\": \"0\",\n    \"payment_term_in\": \"0\",\n    \"invoice_email\": \"{{ $('Order').item.json[\"body\"][\"billing\"][\"email\"] }}\",\n    \"is_vat_payer\":1\n\n  }\n}\n",
+        "jsonBody": "={\n  \"D3cCompany\": {\n    \"regcode\": \"{{ $json[\"body\"][\"select2\"][\"results\"][0][\"regcode\"] }}\",\n    \"sepa\": \"{{ $json[\"body\"][\"select2\"][\"results\"][0][\"sepa\"] }}\",\n    \"name\": {{ JSON.stringify($('urapi').item.json.body.select2.results[0]['name']  ) }},\n    \"typeName\": \"{{  $('urapi').item.json.body.select2.results[0]['type_name'] }}\",\n    \"address\": \"{{ $('urapi').item.json.body.select2.results[0]['address'].replace(/\"/g, \"\") }}\"\n  },\n  \"InvCompany\": {\n    \"payment_term\": \"0\",\n    \"payment_term_in\": \"0\",\n    \"invoice_email\": \"{{ $('Order').item.json[\"body\"][\"billing\"][\"email\"] }}\",\n    \"is_vat_payer\":1\n\n  }\n}\n",
         "options": {
           "allowUnauthorizedCerts": true,
           "response": {
@@ -502,13 +463,13 @@
           }
         }
       },
-      "id": "f091abe3-a330-43a5-817a-8ab12fc571a2",
+      "id": "7f1c97ee-a9af-4f1b-8eff-1dadcef97d24",
       "name": "PARTNER VALID CODE1",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
       "position": [
-        -120,
-        980
+        1380,
+        1020
       ],
       "notesInFlow": true,
       "notes": "POST NEW CUSTOMER"
@@ -528,13 +489,13 @@
           }
         }
       },
-      "id": "6834a353-1c38-4647-8ded-78f1012ca13e",
+      "id": "f18eacfe-619d-4551-9140-1ffb6ac0b176",
       "name": "PARTNER PRIVATE",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
       "position": [
-        120,
-        680
+        1620,
+        720
       ],
       "notesInFlow": true,
       "notes": "CREATE PARTNER"
@@ -568,13 +529,13 @@
           "dotNotation": false
         }
       },
-      "id": "3bd237cf-82fc-4a02-b5cc-eb95ac36ddc6",
+      "id": "9ae4bbb5-0901-4be0-b31f-86f8061050fd",
       "name": "Set6",
       "type": "n8n-nodes-base.set",
       "typeVersion": 2,
       "position": [
-        400,
-        860
+        1900,
+        900
       ]
     },
     {
@@ -592,13 +553,13 @@
           }
         }
       },
-      "id": "1fd93fd2-ac08-4d4f-a782-ba056abb0bde",
+      "id": "fb1f9f9d-61eb-49ae-b615-2d1c162aec25",
       "name": "Paraksts",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
       "position": [
-        -320,
-        1280
+        1320,
+        1320
       ],
       "notesInFlow": true,
       "credentials": {
@@ -619,13 +580,13 @@
           "ccList": "notikumi@ir.lv"
         }
       },
-      "id": "3559484a-3db7-4af3-a801-e96427917179",
+      "id": "550b40db-0ca3-44ef-9a6b-b31349bdcd0e",
       "name": "Gmail1",
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
-        100,
-        1280
+        1520,
+        1320
       ],
       "credentials": {
         "gmailOAuth2": {
@@ -652,13 +613,13 @@
           }
         }
       },
-      "id": "0a03fab5-873c-45d5-9238-565765e51e58",
+      "id": "a9c588c8-3d05-40f5-a133-abad39a3d8ba",
       "name": "Invoiced Order",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
       "position": [
-        -540,
-        1280
+        1100,
+        1320
       ],
       "notesInFlow": true,
       "credentials": {
@@ -668,108 +629,6 @@
         }
       },
       "notes": "READ ORDER"
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict"
-          },
-          "conditions": [
-            {
-              "id": "92e9e023-a669-445b-8698-513cbf4ec288",
-              "leftValue": "={{ $('Order').item.json.body.status}}",
-              "rightValue": "on-hold",
-              "operator": {
-                "type": "string",
-                "operation": "equals",
-                "name": "filter.operator.equals"
-              }
-            },
-            {
-              "id": "67a78764-39aa-4958-a0ee-7de1a0d181cd",
-              "leftValue": "={{ $('Order').item.json.body.payment_method}}",
-              "rightValue": "bacs",
-              "operator": {
-                "type": "string",
-                "operation": "equals",
-                "name": "filter.operator.equals"
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "id": "9f6c7512-621d-4c4b-9261-906440660979",
-      "name": "If",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2,
-      "position": [
-        -860,
-        320
-      ]
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict"
-          },
-          "conditions": [
-            {
-              "id": "92e9e023-a669-445b-8698-513cbf4ec288",
-              "leftValue": "={{ $('Order').item.json.body.status}}",
-              "rightValue": "completed",
-              "operator": {
-                "type": "string",
-                "operation": "equals",
-                "name": "filter.operator.equals"
-              }
-            },
-            {
-              "id": "67a78764-39aa-4958-a0ee-7de1a0d181cd",
-              "leftValue": "={{ $('Order').item.json.body.payment_method}}",
-              "rightValue": "everypay",
-              "operator": {
-                "type": "string",
-                "operation": "equals",
-                "name": "filter.operator.equals"
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "id": "99350fee-eee5-43ef-9f91-e69122bd2e98",
-      "name": "If1",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2,
-      "position": [
-        -680,
-        480
-      ]
-    },
-    {
-      "parameters": {
-        "httpMethod": "POST",
-        "path": "01c7f401-2fc3-475c-add3-3c3158ffdf1a",
-        "options": {}
-      },
-      "id": "45c32eeb-f71b-40d9-b750-51de887b6168",
-      "name": "Webhook",
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 1,
-      "position": [
-        -1380,
-        320
-      ],
-      "webhookId": "01c7f401-2fc3-475c-add3-3c3158ffdf1a"
     },
     {
       "parameters": {
@@ -805,13 +664,13 @@
         },
         "options": {}
       },
-      "id": "0d2f7d2a-2fae-4595-8b44-22bb66cbb908",
+      "id": "172ee0cd-1c77-46a1-ab27-9cf274b1de17",
       "name": "If2",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        -420,
-        500
+        1080,
+        540
       ]
     },
     {
@@ -819,13 +678,13 @@
         "workflowId": "WbFjEFa8KOaJW8XN",
         "options": {}
       },
-      "id": "09fc12c2-054f-4cdd-a1db-d9b12c5321ba",
+      "id": "30349c22-c484-43c1-8679-26dfb03a550f",
       "name": "Execute Workflow",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1,
       "position": [
-        -1080,
-        780
+        1620,
+        80
       ]
     },
     {
@@ -842,13 +701,195 @@
           "dotNotation": false
         }
       },
-      "id": "1398e64b-8fdc-4f69-85a7-b0eb59b9e638",
+      "id": "051f7a5e-57ca-489d-9d08-a5c5cc802ffa",
       "name": "Set7",
       "type": "n8n-nodes-base.set",
       "typeVersion": 2,
       "position": [
-        -1320,
-        780
+        1380,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "16bac2af-f846-474e-ab72-2cbbbce2db8b",
+              "name": "inv",
+              "value": "={{ $jmespath($('Order').item.json.body.meta_data , \"[?key == 'invoice_nr'].value\")[0] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "6ffbd7e4-5eaf-44e1-8949-80873c9081b0",
+      "name": "Invoice",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        420,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "errorMessage": "Invoice exists!"
+      },
+      "id": "ff9f2fcb-8366-49ef-ae14-79cb7ae6d97f",
+      "name": "Stop and Error1",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        500,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.inv }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        },
+        "combineOperation": "any"
+      },
+      "id": "a7031153-45bc-48db-8da3-4da4ad653a0a",
+      "name": "IF",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        620,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Add a new field called 'myNewField' to the JSON of the item\nvar regnr;\nvar comp;\n\nfor (reg of $input.item.json.body.meta_data) {\n\n   if (reg['key'] == '_billing_pvn_numurs'  ) {\n       regnr = reg['value'];\n       regnr = regnr.replace(/ /g, \"\")\n   }\n}\n\n\nfor (reg of $input.item.json.body.meta_data) {\n\n   if (reg['key'] == '_billing_uznemuma_nosaukms'  ) {\n       comp = reg['value'];\n       comp = comp.replace(/\"/g, \"\");\n   }\n}\n\nif ( comp ) $input.item.json.COMP =  comp;\n   else $input.item.json.COMP =  $input.item.json.body.billing.first_name+ ' '+   $input.item.json.body.billing.last_name;\n\n\nif (regnr) { \n\n  regnr = regnr.trim();\n  len = regnr.length;\n\n  if (len == 13) {\n    $input.item.json.REGNR = regnr.substr(2,len);\n    $input.item.json.LEN = 11;\n    \n  } else  if (len == 11)  $input.item.json.REGNR = regnr;\n    else  $input.item.json.NONSTANDART = true;\n\n    $input.item.json.CHECKNR = ( $input.item.json.REGNR  ? $input.item.json.REGNR :  regnr ) ;\n  \n    $input.item.json.LEN =len;\n}\n\n\nreturn $input.item;"
+      },
+      "id": "f8ef7ba3-7b9c-412c-b45a-62c8b6749a1f",
+      "name": "Code1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        1080,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "01c7f401-2fc3-475c-add3-3c3158ffdf1a",
+        "options": {}
+      },
+      "id": "7f89e0f0-595e-4a6f-9999-63114eeb7c49",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        200
+      ],
+      "webhookId": "01c7f401-2fc3-475c-add3-3c3158ffdf1a"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "92e9e023-a669-445b-8698-513cbf4ec288",
+              "leftValue": "={{ $('Order').item.json.body.status}}",
+              "rightValue": "completed",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "0b24b77d-ba8f-4b64-b794-5964016b7684",
+              "leftValue": "={{ $('Order').item.json.body.status}}",
+              "rightValue": "on-hold",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "13299e03-4873-4385-93b7-76a95d681dfd",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        780,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $('Card').item.json.payment_type }}",
+              "value2": "card"
+            },
+            {
+              "value1": "={{ $('Webhook').item.body.origin   }}",
+              "value2": "functions"
+            },
+            {
+              "value1": "={{ $('Order').item.json.body.status}}",
+              "value2": "completed"
+            }
+          ]
+        }
+      },
+      "id": "0c56464c-8c25-466c-9b80-98952cb443c9",
+      "name": "IF1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        200,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "296cf7df-46e6-4cf7-a47c-14bf61e87605",
+              "name": "payment_type",
+              "value": "={{ $jmespath($json.body.meta_data , \"[?key == '_wc_everypay_payment_method'].value\")[0] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "258e727d-42d8-4367-ab0c-d6bdaf7f792a",
+      "name": "Card",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        -40,
+        520
       ]
     }
   ],
@@ -866,6 +907,28 @@
         [
           {
             "node": "Set2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set1": {
+      "main": [
+        [
+          {
+            "node": "IF2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set2": {
+      "main": [
+        [
+          {
+            "node": "IF5",
             "type": "main",
             "index": 0
           }
@@ -890,50 +953,6 @@
         ]
       ]
     },
-    "Set1": {
-      "main": [
-        [
-          {
-            "node": "IF2",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Code1": {
-      "main": [
-        [
-          {
-            "node": "IF_legal",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Set2": {
-      "main": [
-        [
-          {
-            "node": "IF5",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Order": {
-      "main": [
-        [
-          {
-            "node": "If",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "IF2": {
       "main": [
         [
@@ -952,7 +971,18 @@
         ]
       ]
     },
-    "Set3": {
+    "Order": {
+      "main": [
+        [
+          {
+            "node": "Invoice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set": {
       "main": [
         [
           {
@@ -963,7 +993,7 @@
         ]
       ]
     },
-    "Set": {
+    "Set3": {
       "main": [
         [
           {
@@ -1148,17 +1178,6 @@
       "main": [
         [
           {
-            "node": "Gmail",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Gmail": {
-      "main": [
-        [
-          {
             "node": "Gmail1",
             "type": "main",
             "index": 0
@@ -1171,53 +1190,6 @@
         [
           {
             "node": "Paraksts",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "If": {
-      "main": [
-        [
-          {
-            "node": "Code1",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "If1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "If1": {
-      "main": [
-        [
-          {
-            "node": "Code1",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "If2",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Webhook": {
-      "main": [
-        [
-          {
-            "node": "Order",
             "type": "main",
             "index": 0
           }
@@ -1245,20 +1217,93 @@
           }
         ]
       ]
+    },
+    "Invoice": {
+      "main": [
+        [
+          {
+            "node": "IF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF": {
+      "main": [
+        [
+          {
+            "node": "Stop and Error1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "IF_legal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Card": {
+      "main": [
+        [
+          {
+            "node": "IF1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
   "settings": {
-    "saveDataErrorExecution": "all",
-    "saveDataSuccessExecution": "all",
-    "saveExecutionProgress": true,
-    "saveManualExecutions": true,
-    "callerPolicy": "workflowsFromSameOwner",
-    "errorWorkflow": "BDx8NwbqJhGZxzLz",
-    "timezone": "Europe/Riga",
-    "executionOrder": "v0"
+    "executionOrder": "v1"
   },
-  "versionId": "50e62c64-7e59-4148-9b99-536a582a4bcc",
+  "versionId": "5f4df8d5-9500-4dfa-9053-7fd9a0863335",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "0f064bae8ef402bc77bc2dfa9bf8ed7b60d49005d687ffae7941232c8a9d8d44"
