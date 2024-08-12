@@ -1,4 +1,39 @@
 <?php
+/**
+ * Theme functions and definitions.
+ *
+ * For additional information on potential customization options,
+ * read the developers' documentation:
+ *
+ * https://developers.elementor.com/docs/hello-elementor-theme/
+ *
+ * @package HelloElementorChild
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
+define( 'HELLO_ELEMENTOR_CHILD_VERSION', '2.0.0' );
+
+/**
+ * Load child theme scripts & styles.
+ *
+ * @return void
+ */
+function hello_elementor_child_scripts_styles() {
+
+	wp_enqueue_style(
+		'hello-elementor-child-style',
+		get_stylesheet_directory_uri() . '/style.css',
+		[
+			'hello-elementor-theme-style',
+		],
+		HELLO_ELEMENTOR_CHILD_VERSION
+	);
+
+}
+add_action( 'wp_enqueue_scripts', 'hello_elementor_child_scripts_styles', 20 );
 //EP pievienojam grozam visus produktus no upsell formas
 
 add_filter("jet-form-builder/action/redirect_to_woo_checkout/add-to-cart", 'formbuilder_add_to_cart' , 20 , 5);    
@@ -221,7 +256,10 @@ function ir_after_order_complete( $order_id ) {
 	
    $order = new WC_Order( $order_id );
    $payment_title = $order->get_payment_method();	
+   $payment_type = 	get_post_meta($order_id, '_wc_everypay_payment_method', true );
    
+   //EP webhook for completed advance payment to generate final invoice
+   //
    if ($payment_title == 'bacs') {
 	
 	
@@ -230,39 +268,6 @@ function ir_after_order_complete( $order_id ) {
 
 	  //echo($url)  ;
 	  //exit;
-      // Data to send in the POST request
-      $data = array(
-       'order_nr' => $order_id,
-   
-       );
-
-      // Initialize cURL session
-      $ch = curl_init($url);
-
-      // Set cURL options for the POST request
-      curl_setopt($ch, CURLOPT_POST, 1);
-      curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
-      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-  
-      // Disable SSL verification
-      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-      curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-
-      // Execute the cURL session and store the response in $response
-      $response = curl_exec($ch);
-
-      // Check for cURL errors
-      if (curl_errno($ch)) {
-         echo 'cURL error: ' . curl_error($ch);
-      }
-
-      // Close cURL session
-      curl_close($ch);
-   } elseif ( $payment_title == 'Everypay'  ||  $payment_title == 'everypay'  ) {
-	   
-	     // URL of the web service
-      $url = 'https://n8n.m50.lv:5678/webhook/01c7f401-2fc3-475c-add3-3c3158ffdf1a';
-
       // Data to send in the POST request
       $data = array(
        'id' => $order_id,
@@ -290,6 +295,42 @@ function ir_after_order_complete( $order_id ) {
       }
 
       // Close cURL session
+      curl_close($ch);
+	   
+   //EP webhook to process completed status for Everypay payment
+   //	   
+   } elseif ( $payment_title == 'Everypay'  ||  $payment_title == 'everypay'  ) {
+	   
+	     // URL of the web service
+      $url = 'https://n8n.m50.lv:5678/webhook/01c7f401-2fc3-475c-add3-3c3158ffdf1a';
+
+      // Data to send in the POST request
+      $data = array(
+       'id' => $order_id,
+       'origin' => 'functions' 
+       );
+
+      // Initialize cURL session
+      $ch = curl_init($url);
+
+      // Set cURL options for the POST request
+      curl_setopt($ch, CURLOPT_POST, 1);
+      curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  
+      // Disable SSL verification
+      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+      curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+
+      // Execute the cURL session and store the response in $response
+    //  $response = curl_exec($ch);
+
+      // Check for cURL errors
+      if (curl_errno($ch)) {
+         echo 'cURL error: ' . curl_error($ch);
+      }
+
+      // Close cURL session
       curl_close($ch); 
    }	   
    
@@ -297,6 +338,57 @@ function ir_after_order_complete( $order_id ) {
 }
 
 add_action( 'woocommerce_order_status_completed', 'ir_after_order_complete'  );
+
+
+function ir_after_order_failed( $order_id ) {
+	
+	
+   $order = new WC_Order( $order_id );
+   $payment_title = $order->get_payment_method();	
+   
+   if ( $payment_title == 'Everypay'  ||  $payment_title == 'everypay' ) {
+	
+	
+      // URL of the web service
+      $url = 'https://n8n.m50.lv:5678/webhook/01c7f401-2fc3-475c-add3-3c3158ffdf1a';
+
+	  //echo($url)  ;
+	  //exit;
+      // Data to send in the POST request
+      $data = array(
+       'id' => $order_id,
+	   'origin' => 'failed'	  
+   
+       );
+
+      // Initialize cURL session
+      $ch = curl_init($url);
+
+      // Set cURL options for the POST request
+      curl_setopt($ch, CURLOPT_POST, 1);
+      curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  
+      // Disable SSL verification
+      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+      curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+
+      // Execute the cURL session and store the response in $response
+      $response = curl_exec($ch);
+
+      // Check for cURL errors
+      if (curl_errno($ch)) {
+         echo 'cURL error: ' . curl_error($ch);
+      }
+
+      // Close cURL session
+      curl_close($ch);
+    } 
+}	
+
+
+add_action( 'woocommerce_order_status_failed', 'ir_after_order_failed'  );
+
 
 /**
  * exclude a product from an coupon by attribute value
@@ -432,28 +524,30 @@ add_action('after_switch_theme', 'custom_flush_rewrite_rules');
 //register number validation
 
 function wpdesk_fcf_validate_regnumber( $field_label, $value ) {
-	
-	$patternvat = '/^(AT|BE|BG|CY|CZ|DE|DK|EE|EL|ES|FI|FR|GB|HR|HU|IE|IT|LT|LU|LV|MT|NL|PL|PT|RO|SE|SI|SK)[0-9A-Z]{11}$/';
-	$patternur = '/^[0-9]{11}$/';
+
+	if ($value) {
+		$patternvat = '/^(AT|BE|BG|CY|CZ|DE|DK|EE|EL|ES|FI|FR|GB|HR|HU|IE|IT|LT|LU|LV|MT|NL|PL|PT|RO|SE|SI|SK)[0-9A-Z]{11}$/';
+		$patternur = '/^[0-9]{11}$/';
     
 		
-    // Perform the regex match
-    if (preg_match($patternvat, $value)) {
-        $vatnr = true; // VAT number is valid
-    } else {
-        $vatnr = false; // VAT number is not valid
-    }
+    	// Perform the regex match
+    	if (preg_match($patternvat, $value)) {
+        	$vatnr = true; // VAT number is valid
+    	} else {
+        	$vatnr = false; // VAT number is not valid
+    	}
 	
-    if (preg_match($patternur, $value)) {
-        $urnr = true; // VAT number is valid
-    } else {
-        $urnr = false; // VAT number is not valid
-    }
+    	if (preg_match($patternur, $value)) {
+        	$urnr = true; // VAT number is valid
+    	} else {
+        	$urnr = false; // VAT number is not valid
+    	}
 
 	
-    if ( !$vatnr  && !$urnr ) {
-        wc_add_notice( sprintf( '%s ir nederīgs.', '<strong>' . $field_label . '</strong>' ), 'error' );
-    }
+    	if ( !$vatnr  && !$urnr ) {
+        	wc_add_notice( sprintf( '%s ir nederīgs.', '<strong>' . $field_label . '</strong>' ), 'error' );
+    	}
+	}	
 }
 
 add_filter( 'flexible_checkout_fields_custom_validation', 'wpdesk_fcf_custom_validation_regnumber' );
@@ -465,7 +559,27 @@ function wpdesk_fcf_custom_validation_regnumber( $custom_validation ) {
     $custom_validation['regnumber'] = array(
         'label'     => 'Reģistrācijas numurs',
         'callback'  => 'wpdesk_fcf_validate_regnumber'
-    );
+     );
 
     return $custom_validation;
 }
+
+add_filter( 'jet-engine-calculated-callback/config', function( $callbacks = array() ) {
+
+	
+	$callbacks['product_short_desc'] = function( $field_value ) {
+
+		
+        return "Apraksts";
+
+	};
+});	
+
+function ir_add_meta_tags(){
+	
+	echo '<meta name="google-site-verification" content="1R4R5tR2jONh2RxQrHSRI6lPM3EV-LicYDhI6XBIe8E" />' . "\n";
+	
+}
+
+
+add_action( 'wp_head', 'ir_add_meta_tags');
