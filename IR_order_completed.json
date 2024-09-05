@@ -3,23 +3,7 @@
   "nodes": [
     {
       "parameters": {
-        "httpMethod": "POST",
-        "path": "5aa23911-6370-40bc-b97e-e8812b5c8459",
-        "options": {}
-      },
-      "id": "4cb8a336-34ac-437b-82a4-4d1b521b34c6",
-      "name": "Webhook",
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 1,
-      "position": [
-        20,
-        400
-      ],
-      "webhookId": "5aa23911-6370-40bc-b97e-e8812b5c8459"
-    },
-    {
-      "parameters": {
-        "url": "= https://irdarbnicas.lv/wp-json/wc/v3/orders/{{ $json.body.order_nr }}",
+        "url": "= https://irdarbnicas.lv/wp-json/wc/v3/orders/{{ $json.body.id }}",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpBasicAuth",
         "options": {
@@ -37,7 +21,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
       "position": [
-        200,
+        -140,
         680
       ],
       "notesInFlow": true,
@@ -65,7 +49,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://irekini.lv/api.php?r=invoices/invoice/create-file-download&access-token=TVPlsEZjdCj--B2-rK-SKDrZPqU5_ikk&cId=16779&id={{ $('invoice_new').item.json.body[\"id\"] }}",
+        "url": "=https://irekini.lv/api.php?r=invoices/invoice/create-file-download&access-token=8b7imvkmVIlvfntWNLN1IWs2AYtvZ-fJ&cId=16779&id={{ $('invoice_new').item.json.body[\"id\"] }}",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={\n     \"format\": \"pdf\",\n     \"with_sign\": 0,\n     \"show_product_code\": 0,\n     \"version\" : \"darbnica\"\n}\n",
@@ -98,8 +82,8 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        -200,
-        640
+        -680,
+        680
       ],
       "disabled": true
     },
@@ -139,7 +123,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://irekini.lv/api.php?r=invoices/invoice/attach-label&access-token=TVPlsEZjdCj--B2-rK-SKDrZPqU5_ikk&cId=16779&&invoiceId={{ $json[\"body\"][\"id\"] }}&labelDefId=74\n\n",
+        "url": "=https://irekini.lv/api.php?r=invoices/invoice/attach-label&access-token=8b7imvkmVIlvfntWNLN1IWs2AYtvZ-fJ&cId=16779&&invoiceId={{ $json[\"body\"][\"id\"] }}&labelDefId=74\n\n",
         "options": {
           "allowUnauthorizedCerts": true,
           "response": {
@@ -166,7 +150,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://irekini.lv/api.php?r=invoices/invoice/create-invoice&access-token=TVPlsEZjdCj--B2-rK-SKDrZPqU5_ikk&cId=16779&document_id=441\n\n",
+        "url": "=https://irekini.lv/api.php?r=invoices/invoice/create-invoice&access-token=8b7imvkmVIlvfntWNLN1IWs2AYtvZ-fJ&cId=16779&document_id=441\n\n",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={\n  \"InvInvoiceForm\": {\n    \n    \"doc_date\": \"{{$('order').item.json.body.date_created_gmt}}\",\n    \"partner_id\": \"{{ $jmespath($('order').item.json.body.meta_data , \"[?key == 'partner'].value\") }}\",\n    \"currency_id\": \"1\",\n    \"payment_type\": \"Bank Transfer\",\n    \"additional_info\" : \"\",\n    \"serial_nr_part2\"  : \"{{ $jmespath($('order').item.json.body.meta_data , \"[?key == 'invoice_nr'].value\") }}\",\n     \"additional_info\" : \"Rēķins ir apmaksāts\"\n}\n}",
@@ -229,7 +213,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 2,
       "position": [
-        400,
+        160,
         680
       ]
     },
@@ -277,7 +261,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://irekini.lv/api.php?r=invoices/invoice/add-invoice-item&access-token=TVPlsEZjdCj--B2-rK-SKDrZPqU5_ikk&cId=16779&invoiceId={{ $('invoice_new').item.json.body[\"id\"] }}&calculatedTotal={{ $('order').item.json.body.total }}",
+        "url": "=https://irekini.lv/api.php?r=invoices/invoice/add-invoice-item&access-token=8b7imvkmVIlvfntWNLN1IWs2AYtvZ-fJ&cId=16779&invoiceId={{ $('invoice_new').item.json.body[\"id\"] }}&calculatedTotal={{ $('order').item.json.body.total }}",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "=\n {{ JSON.stringify($json.items_) }}",
@@ -303,21 +287,6 @@
     },
     {
       "parameters": {
-        "operation": "aggregateItems",
-        "aggregate": "aggregateAllItemData",
-        "destinationFieldName": "items_"
-      },
-      "id": "de5b1373-319f-46fc-97f9-5bd7c66f2214",
-      "name": "items",
-      "type": "n8n-nodes-base.itemLists",
-      "typeVersion": 2.1,
-      "position": [
-        1680,
-        1540
-      ]
-    },
-    {
-      "parameters": {
         "url": "= https://irdarbnicas.lv/wp-json/wc/v3/products/{{$json.product_id}} ",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpBasicAuth",
@@ -335,8 +304,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
       "position": [
-        820,
-        1400
+        420,
+        1680
       ],
       "notesInFlow": true,
       "credentials": {
@@ -357,8 +326,8 @@
       "type": "n8n-nodes-base.itemLists",
       "typeVersion": 2.1,
       "position": [
-        460,
-        1400
+        120,
+        1320
       ]
     },
     {
@@ -374,8 +343,8 @@
       "type": "n8n-nodes-base.dateTime",
       "typeVersion": 2,
       "position": [
-        1100,
-        1320
+        760,
+        1340
       ]
     },
     {
@@ -388,8 +357,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        640,
-        1280
+        340,
+        1320
       ]
     },
     {
@@ -402,8 +371,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1000,
-        1600
+        620,
+        1680
       ]
     },
     {
@@ -426,8 +395,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
       "position": [
-        480,
-        1080
+        -140,
+        1320
       ],
       "notesInFlow": true,
       "credentials": {
@@ -441,7 +410,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://irekini.lv/api.php?r=invoices/invoice/attach-advance&access-token=TVPlsEZjdCj--B2-rK-SKDrZPqU5_ikk&cId=16779&invoiceId={{ $('invoice_new').item.json.body[\"id\"] }}&advanceInvoiceId={{ $jmespath($('order').item.json.body.meta_data , \"[?key == 'invoice'].value\") }}\n \n",
+        "url": "=https://irekini.lv/api.php?r=invoices/invoice/attach-advance&access-token=8b7imvkmVIlvfntWNLN1IWs2AYtvZ-fJ&cId=16779&invoiceId={{ $('invoice_new').item.json.body[\"id\"] }}&advanceInvoiceId={{ $jmespath($('order').item.json.body.meta_data , \"[?key == 'invoice'].value\") }}\n \n",
         "options": {
           "allowUnauthorizedCerts": true,
           "response": {
@@ -489,7 +458,7 @@
       "credentials": {
         "gmailOAuth2": {
           "id": "i8yUhQAx74lvxr0z",
-          "name": "Gmail account 2"
+          "name": "IR google"
         }
       }
     },
@@ -513,32 +482,6 @@
           "name": "Wordpress account"
         }
       }
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "=https://irekini.lv/api.php?r=invoices/invoice/attach-advance&access-token=TVPlsEZjdCj--B2-rK-SKDrZPqU5_ikk&cId=16779&invoiceId=28029  \n\n \n",
-        "options": {
-          "allowUnauthorizedCerts": true,
-          "response": {
-            "response": {
-              "fullResponse": true
-            }
-          }
-        }
-      },
-      "id": "882e1146-8e29-4b0b-b347-d21cbdb1ceb6",
-      "name": "attach advance2",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 3,
-      "position": [
-        -40,
-        1360
-      ],
-      "notesInFlow": true,
-      "executeOnce": true,
-      "continueOnFail": true,
-      "notes": "POST new invoice advance"
     },
     {
       "parameters": {
@@ -577,7 +520,8 @@
     },
     {
       "parameters": {
-        "workflowId": "qNtCaGEYMvmhcyEG"
+        "workflowId": "qNtCaGEYMvmhcyEG",
+        "options": {}
       },
       "id": "f7bf4ca5-8fea-4f3b-af0e-c9eb44cb8313",
       "name": "Execute Workflow",
@@ -630,7 +574,7 @@
       "typeVersion": 3,
       "position": [
         1840,
-        780
+        800
       ],
       "notesInFlow": true,
       "credentials": {
@@ -640,141 +584,6 @@
         }
       },
       "notes": "READ ORDER"
-    },
-    {
-      "parameters": {
-        "keepOnlySet": true,
-        "values": {
-          "string": [
-            {
-              "name": "name",
-              "value": "=\n{{ $('itemlists').item.json[\"name\"] }}\nDatums: {{ $('Date & Time').item.json[\"formattedDate\"] }} \n"
-            },
-            {
-              "name": "count",
-              "value": "={{ parseInt($('itemlists').item.json[\"quantity\"]) }}"
-            },
-            {
-              "name": "vat_id",
-              "value": "1"
-            },
-            {
-              "name": "unit_id",
-              "value": "2"
-            },
-            {
-              "name": "name_email",
-              "value": "=\n{{ $('itemlists').item.json[\"name\"] }}<br/>\nDatums: {{ $('Date & Time').item.json[\"formattedDate\"] }} <br/>\nDalībnieki: {{ $('Members').item.json.members }}"
-            }
-          ],
-          "number": [
-            {
-              "name": "unit_price",
-              "value": "={{ $('itemlists').item.json[\"subtotal\"] / parseInt($('itemlists').item.json[\"quantity\"]) }}"
-            }
-          ]
-        },
-        "options": {
-          "dotNotation": false
-        }
-      },
-      "id": "9ab6d5f5-36be-4b10-a4a4-29eb98eae4b9",
-      "name": "Ir cikls",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 2,
-      "position": [
-        1480,
-        1440
-      ],
-      "notesInFlow": true,
-      "notes": "Ja ir cikls atlaidi neliekam"
-    },
-    {
-      "parameters": {
-        "keepOnlySet": true,
-        "values": {
-          "string": [
-            {
-              "name": "name",
-              "value": "=\n{{ $('itemlists').item.json[\"name\"] }}\nDatums: {{ $('Date & Time').item.json[\"formattedDate\"] }} \n"
-            },
-            {
-              "name": "count",
-              "value": "={{ parseInt($('itemlists').item.json[\"quantity\"]) }}"
-            },
-            {
-              "name": "vat_id",
-              "value": "1"
-            },
-            {
-              "name": "unit_id",
-              "value": "2"
-            },
-            {
-              "name": "discount",
-              "value": "20%"
-            },
-            {
-              "name": "name_email",
-              "value": "=\n{{ $('itemlists').item.json[\"name\"] }}<br/>\nDatums: {{ $('Date & Time').item.json[\"formattedDate\"] }} <br/>\nDalībnieki: {{ $('Members').item.json.members }}"
-            }
-          ],
-          "number": [
-            {
-              "name": "unit_price",
-              "value": "={{ $('itemlists').item.json[\"subtotal\"] / parseInt($('itemlists').item.json[\"quantity\"]) }}"
-            }
-          ]
-        },
-        "options": {
-          "dotNotation": false
-        }
-      },
-      "id": "ee190e7c-4e23-4caf-854e-c35bd6901d40",
-      "name": "Nav cikls",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 2,
-      "position": [
-        1480,
-        1100
-      ],
-      "notesInFlow": true,
-      "notes": "Ja nav cikls liekam atlaidi"
-    },
-    {
-      "parameters": {},
-      "id": "8e02faa6-6416-4cee-b0c4-332cb6116c5e",
-      "name": "Merge1",
-      "type": "n8n-nodes-base.merge",
-      "typeVersion": 2.1,
-      "position": [
-        1620,
-        1300
-      ]
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "string": [
-            {
-              "value1": "={{ $('order1').item.json.body.coupon_lines[0].code }}",
-              "value2": "irabonents"
-            },
-            {
-              "value1": "={{ JSON.parse($jmespath($('itemlists').item.json.meta_data , \"[?key == 'Cikls'].value\")) }}",
-              "operation": "isEmpty"
-            }
-          ]
-        }
-      },
-      "id": "5ab69540-279b-4c0c-8ecd-6ee4a4838f5e",
-      "name": "IF3",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 1,
-      "position": [
-        1300,
-        1320
-      ]
     },
     {
       "parameters": {
@@ -793,8 +602,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.2,
       "position": [
-        1660,
-        1780
+        1720,
+        1800
       ],
       "notesInFlow": true,
       "notes": "Ja ir kupons , liekam Discount tagu"
@@ -816,7 +625,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.2,
       "position": [
-        1660,
+        1720,
         2000
       ]
     },
@@ -825,8 +634,8 @@
         "conditions": {
           "string": [
             {
-              "value1": "={{ $('order1').item.json.body.coupon_lines[0].code }}",
-              "value2": "irabonents"
+              "value1": "={{ $('order1').item.json.body.coupon_lines[0] }}",
+              "operation": "isNotEmpty"
             }
           ]
         }
@@ -836,7 +645,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
-        1440,
+        1300,
         1880
       ]
     },
@@ -850,35 +659,214 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1940,
-        1760
+        2040,
+        1880
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $('order').item.json.body.payment_method }}",
+              "value2": "bacs"
+            }
+          ]
+        }
+      },
+      "id": "c0a0bc61-145b-4048-9197-1e1f25946e9b",
+      "name": "IF2",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        380,
+        680
+      ]
+    },
+    {
+      "parameters": {
+        "errorMessage": "Wrong method"
+      },
+      "id": "6a83dae3-bb2e-4abb-8854-993ccb5786d8",
+      "name": "Stop and Error1",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        160,
+        920
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "5aa23911-6370-40bc-b97e-e8812b5c8459",
+        "options": {}
+      },
+      "id": "4cb8a336-34ac-437b-82a4-4d1b521b34c6",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        420
+      ],
+      "webhookId": "5aa23911-6370-40bc-b97e-e8812b5c8459"
+    },
+    {
+      "parameters": {
+        "operation": "aggregateItems",
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "items_"
+      },
+      "id": "066a4d88-4497-4959-a55f-e2634372fab8",
+      "name": "items",
+      "type": "n8n-nodes-base.itemLists",
+      "typeVersion": 2.1,
+      "position": [
+        1720,
+        1560
+      ],
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "name",
+              "value": "=\n{{ $('itemlists').item.json[\"name\"] }}\nDatums: {{ $('Date & Time').item.json[\"formattedDate\"] }} \n"
+            },
+            {
+              "name": "count",
+              "value": "={{ parseInt($('itemlists').item.json[\"quantity\"]) }}"
+            },
+            {
+              "name": "vat_id",
+              "value": "1"
+            },
+            {
+              "name": "unit_id",
+              "value": "2"
+            },
+            {
+              "name": "discount",
+              "value": "={{ $('order1').item.json.coupon_lines[0].nominal_account }}%"
+            },
+            {
+              "name": "name_email",
+              "value": "=\n{{ $('itemlists').item.json[\"name\"] }}<br/>\nDatums: {{ $('Date & Time').item.json[\"formattedDate\"] }} <br/>\nDalībnieki: {{ $('Members').item.json.members }}"
+            }
+          ],
+          "number": [
+            {
+              "name": "unit_price",
+              "value": "={{ $('itemlists').item.json[\"subtotal\"] / parseInt($('itemlists').item.json[\"quantity\"]) }}"
+            }
+          ]
+        },
+        "options": {
+          "dotNotation": false
+        }
+      },
+      "id": "eb71c43c-4bc4-4e3f-ac1a-ce2e651876aa",
+      "name": "Atlaide",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        1300,
+        1260
+      ],
+      "notesInFlow": true,
+      "notes": "Ja nav cikls liekam atlaidi"
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "name",
+              "value": "=\n{{ $('itemlists').item.json[\"name\"] }}\nDatums: {{ $('Date & Time').item.json[\"formattedDate\"] }} \n"
+            },
+            {
+              "name": "count",
+              "value": "={{ parseInt($('itemlists').item.json[\"quantity\"]) }}"
+            },
+            {
+              "name": "vat_id",
+              "value": "1"
+            },
+            {
+              "name": "unit_id",
+              "value": "2"
+            },
+            {
+              "name": "discount",
+              "value": "0"
+            },
+            {
+              "name": "name_email",
+              "value": "=\n{{ $('itemlists').item.json[\"name\"] }}<br/>\nDatums: {{ $('Date & Time').item.json[\"formattedDate\"] }} <br/>\nDalībnieki: {{ $('Members').item.json.members }}"
+            }
+          ],
+          "number": [
+            {
+              "name": "unit_price",
+              "value": "={{ $('itemlists').item.json[\"subtotal\"] / parseInt($('itemlists').item.json[\"quantity\"]) }}"
+            }
+          ]
+        },
+        "options": {
+          "dotNotation": false
+        }
+      },
+      "id": "5d574156-863e-4fbf-a6cf-ecc03b1c8883",
+      "name": "Nav atlaides",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        1300,
+        1480
+      ],
+      "notesInFlow": true,
+      "notes": "Ja nav cikls liekam atlaidi"
+    },
+    {
+      "parameters": {},
+      "id": "8589d875-8fbc-481e-982f-d72347bd28b6",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        1580,
+        1380
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $jmespath($('itemlists').item.json.meta_data , \"[?key == 'pa_upsell'].value\")[0] }}",
+              "operation": "notEqual",
+              "value2": "upsell-2"
+            }
+          ]
+        }
+      },
+      "id": "620b1827-4b11-4e82-be59-0028d57f9a48",
+      "name": "IF3",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1000,
+        1340
       ]
     }
   ],
   "pinData": {},
   "connections": {
-    "Webhook": {
-      "main": [
-        [
-          {
-            "node": "order",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "order": {
-      "main": [
-        [
-          {
-            "node": "Set3",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Create PDF": {
       "main": [
         [
@@ -902,17 +890,6 @@
         [
           {
             "node": "Paraksts",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Code": {
-      "main": [
-        [
-          {
-            "node": "Gmail",
             "type": "main",
             "index": 0
           }
@@ -950,7 +927,7 @@
       "main": [
         [
           {
-            "node": "IF1",
+            "node": "IF2",
             "type": "main",
             "index": 0
           }
@@ -991,17 +968,6 @@
         [
           {
             "node": "attach advance1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "items": {
-      "main": [
-        [
-          {
-            "node": "IF4",
             "type": "main",
             "index": 0
           }
@@ -1123,57 +1089,6 @@
         ]
       ]
     },
-    "Ir cikls": {
-      "main": [
-        [
-          {
-            "node": "Merge1",
-            "type": "main",
-            "index": 1
-          }
-        ]
-      ]
-    },
-    "Nav cikls": {
-      "main": [
-        [
-          {
-            "node": "Merge1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "IF3": {
-      "main": [
-        [
-          {
-            "node": "Nav cikls",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Ir cikls",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Merge1": {
-      "main": [
-        [
-          {
-            "node": "items",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Edit Fields": {
       "main": [
         [
@@ -1235,6 +1150,119 @@
           }
         ]
       ]
+    },
+    "order": {
+      "main": [
+        [
+          {
+            "node": "Set3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF2": {
+      "main": [
+        [
+          {
+            "node": "IF1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop and Error1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Atlaide": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Nav atlaides": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF3": {
+      "main": [
+        [
+          {
+            "node": "Nav atlaides",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Atlaide",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "items": {
+      "main": [
+        [
+          {
+            "node": "IF4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
@@ -1244,7 +1272,7 @@
     "saveManualExecutions": true,
     "callerPolicy": "workflowsFromSameOwner"
   },
-  "versionId": "5934a85f-75f9-4bd7-ab6c-8f3a13bf0a97",
+  "versionId": "70eb23a9-5989-4c98-a5f4-d116f174cd84",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "0f064bae8ef402bc77bc2dfa9bf8ed7b60d49005d687ffae7941232c8a9d8d44"
