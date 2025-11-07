@@ -3,7 +3,7 @@
   "nodes": [
     {
       "parameters": {
-        "url": "= https://irdarbnicas.lv/wp-json/wc/v3/orders/{{ $json.order_nr }}",
+        "url": "=https://irdarbnicas.lv/wp-json/wc/v3/orders/{{ $json.order_nr }}",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpBasicAuth",
         "options": {
@@ -21,7 +21,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
       "position": [
-        580,
+        592,
         480
       ],
       "notesInFlow": true,
@@ -40,8 +40,8 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        20,
-        780
+        32,
+        784
       ]
     },
     {
@@ -53,8 +53,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 1,
       "position": [
-        1900,
-        300
+        1904,
+        304
       ]
     },
     {
@@ -76,8 +76,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
       "position": [
-        1580,
-        500
+        1584,
+        512
       ],
       "notesInFlow": true,
       "executeOnce": true,
@@ -90,7 +90,7 @@
         "url": "=https://irekini.lv/api.php?r=invoices/invoice/create-invoice&access-token=8b7imvkmVIlvfntWNLN1IWs2AYtvZ-fJ&cId=16779&document_id=439\n\n",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"InvInvoiceForm\": {\n    \n    \"doc_date\": \"{{$('order').item.json.body.date_created_gmt}}\",\n    \"partner_id\": \"{{ $('Start').item.json.customer_id}}\",\n    \"currency_id\": \"1\",\n    \"payment_type\": \"{{ $('Start').item.json.payment_method}}\",\n    \"additional_info\" : \"{{ $json.additional }}\"\n}\n}",
+        "jsonBody": "={\n  \"InvInvoiceForm\": {\n    \n    \"doc_date\": \"{{ $('order').item.json.body.date_created }}\",\n    \"partner_id\": \"{{ $('Start').item.json.customer_id}}\",\n    \"currency_id\": \"1\",\n    \"payment_type\": \"{{ $('Start').item.json.payment_method}}\",\n    \"serial_nr_part2\"  : \"{{ $json.data }}\",\n    \"additional_info\" : \"{{ $ifEmpty($('Set Additional').item.json.additional, \"\") }}\"\n  \n}\n}",
         "options": {
           "allowUnauthorizedCerts": true,
           "response": {
@@ -105,8 +105,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
       "position": [
-        1340,
-        500
+        1344,
+        512
       ],
       "notesInFlow": true,
       "executeOnce": true,
@@ -115,7 +115,7 @@
     },
     {
       "parameters": {
-        "url": "= https://irdarbnicas.lv/wp-json/wc/v3/products/{{$json.product_id}} ",
+        "url": "=https://irdarbnicas.lv/wp-json/wc/v3/products/{{$json.product_id}} ",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpBasicAuth",
         "options": {
@@ -132,7 +132,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
       "position": [
-        620,
+        624,
         1360
       ],
       "notesInFlow": true,
@@ -154,8 +154,8 @@
       "type": "n8n-nodes-base.itemLists",
       "typeVersion": 2.1,
       "position": [
-        420,
-        1080
+        432,
+        1088
       ]
     },
     {
@@ -171,8 +171,8 @@
       "type": "n8n-nodes-base.dateTime",
       "typeVersion": 2,
       "position": [
-        920,
-        940
+        928,
+        944
       ]
     },
     {
@@ -185,7 +185,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        420,
+        432,
         1360
       ]
     },
@@ -199,8 +199,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2040,
-        1340
+        2048,
+        1344
       ]
     },
     {
@@ -224,7 +224,7 @@
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1,
       "position": [
-        20,
+        32,
         480
       ]
     },
@@ -250,8 +250,8 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 1,
       "position": [
-        2380,
-        620
+        2384,
+        624
       ]
     },
     {
@@ -263,8 +263,8 @@
       "type": "n8n-nodes-base.stopAndError",
       "typeVersion": 1,
       "position": [
-        2700,
-        1020
+        2880,
+        1232
       ]
     },
     {
@@ -290,8 +290,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
       "position": [
-        2020,
-        600
+        1984,
+        624
       ],
       "notesInFlow": true,
       "notes": "CREATE PDF\n"
@@ -312,8 +312,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
-        940,
-        260
+        944,
+        272
       ]
     },
     {
@@ -333,8 +333,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 2,
       "position": [
-        940,
-        500
+        944,
+        512
       ]
     },
     {
@@ -354,7 +354,7 @@
       "typeVersion": 2,
       "position": [
         720,
-        260
+        272
       ]
     },
     {
@@ -375,7 +375,7 @@
       "typeVersion": 2,
       "position": [
         1120,
-        500
+        512
       ]
     },
     {
@@ -404,15 +404,15 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 2,
       "position": [
-        2220,
-        300
+        2224,
+        304
       ],
       "executeOnce": true,
       "alwaysOutputData": true
     },
     {
       "parameters": {
-        "url": "= https://irdarbnicas.lv/wp-json/wc/v3/orders/{{ $('Start').item.json.order_nr }}",
+        "url": "=https://irdarbnicas.lv/wp-json/wc/v3/orders/{{ $('Start').item.json.order_nr }}",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpBasicAuth",
         "options": {
@@ -430,8 +430,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
       "position": [
-        220,
-        1080
+        224,
+        1088
       ],
       "notesInFlow": true,
       "credentials": {
@@ -452,14 +452,14 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1,
       "position": [
-        2700,
-        320
+        3184,
+        352
       ]
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "= https://irdarbnicas.lv/wp-json/wc/v3/orders/{{ $('order').item.json.body.id }}",
+        "url": "=https://irdarbnicas.lv/wp-json/wc/v3/orders/{{ $('order').item.json.body.id }}",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpBasicAuth",
         "sendBody": true,
@@ -479,8 +479,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
       "position": [
-        1580,
-        260
+        1584,
+        272
       ],
       "notesInFlow": true,
       "credentials": {
@@ -512,8 +512,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
       "position": [
-        2280,
-        1340
+        2288,
+        1344
       ],
       "notesInFlow": true,
       "notes": "POST items"
@@ -566,8 +566,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 2,
       "position": [
-        2520,
-        320
+        2880,
+        352
       ],
       "executeOnce": true,
       "alwaysOutputData": true
@@ -591,9 +591,10 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
-        2700,
-        540
+        2880,
+        560
       ],
+      "webhookId": "3976ca9a-ba9b-497a-a0e5-8e030db07966",
       "credentials": {
         "gmailOAuth2": {
           "id": "i8yUhQAx74lvxr0z",
@@ -620,9 +621,10 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
-        2700,
-        740
+        2880,
+        800
       ],
+      "webhookId": "0e97afcb-0b90-4835-b3f5-2ce761e6b4f7",
       "credentials": {
         "gmailOAuth2": {
           "id": "i8yUhQAx74lvxr0z",
@@ -632,7 +634,7 @@
     },
     {
       "parameters": {
-        "url": "= https://irdarbnicas.lv/wp-json/wp/v2/paraksti/5243",
+        "url": "=https://irdarbnicas.lv/wp-json/wp/v2/paraksti/5243",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpBasicAuth",
         "options": {
@@ -650,7 +652,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
       "position": [
-        2520,
+        2528,
         1440
       ],
       "notesInFlow": true,
@@ -699,8 +701,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.3,
       "position": [
-        260,
-        780
+        272,
+        784
       ]
     },
     {
@@ -709,19 +711,25 @@
           "string": [
             {
               "value1": "={{ $jmespath($('itemlists').item.json.meta_data , \"[?key == 'pa_upsell'].value\")[0] }}",
-              "operation": "notEqual",
               "value2": "normal-2"
             }
+          ],
+          "number": [
+            {
+              "value1": "={{  $('itemlists').item.json.variation_id }}",
+              "operation": "equal"
+            }
           ]
-        }
+        },
+        "combineOperation": "any"
       },
       "id": "bb33bba8-4372-4d14-a313-a4d26467f208",
       "name": "IF1",
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
-        1100,
-        940
+        1104,
+        944
       ]
     },
     {
@@ -741,8 +749,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.2,
       "position": [
-        1620,
-        1240
+        1584,
+        1248
       ],
       "notesInFlow": true,
       "notes": "Ja ir kupons , liekam Discount tagu"
@@ -763,8 +771,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
-        1400,
-        1340
+        1344,
+        1344
       ]
     },
     {
@@ -784,8 +792,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.2,
       "position": [
-        1620,
-        1460
+        1584,
+        1472
       ]
     },
     {
@@ -799,8 +807,8 @@
       "type": "n8n-nodes-base.itemLists",
       "typeVersion": 2.1,
       "position": [
-        1800,
-        1020
+        1792,
+        1024
       ],
       "executeOnce": false
     },
@@ -827,7 +835,7 @@
             },
             {
               "name": "discount",
-              "value": "={{ $('order1').item.json.coupon_lines[0].nominal_account }} "
+              "value": "={{ $('order1').item.json.body.coupon_lines[0].nominal_amount }}%"
             },
             {
               "name": "name_email",
@@ -850,8 +858,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 2,
       "position": [
-        1340,
-        820
+        1344,
+        832
       ],
       "notesInFlow": true,
       "notes": "Ja nav cikls liekam atlaidi"
@@ -902,8 +910,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 2,
       "position": [
-        1340,
-        1020
+        1344,
+        1024
       ],
       "notesInFlow": true,
       "notes": "Ja nav cikls liekam atlaidi"
@@ -915,9 +923,178 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3,
       "position": [
-        1580,
-        960
+        1584,
+        944
       ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://irekini.lv/api.php?r=invoices/invoice/create-erekins-download&access-token=8b7imvkmVIlvfntWNLN1IWs2AYtvZ-fJ&cId=16779&id={{ $('invoice_new').item.json.body[\"id\"] }}",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "3d25c1e2-482f-4abb-b46a-1ef75113e03e",
+      "name": "Create Peppol",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        3472,
+        1024
+      ],
+      "notesInFlow": true,
+      "disabled": true,
+      "notes": "CREATE PDF\n"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('order').item.json.body.billing.email }}",
+        "subject": "Jūsu pasūtījums IR DARBNĪCAS (Cits Medijs AS)  Elektroniskais rēķins PEPPOL",
+        "message": "=<style>\np { padding: 10px; }\n</style>\n\n<p>\nLabdien!\n<br /><br />\nMēs esam saņēmuši Jūsu pieteikumu dalībai: \n<br /><br />\n{{ $('Stringemail').item.json[\"stringemail\"] }}\n</p>\n<p>\nPielikumā ir dalības maksas avansa rēķins.\nMaksājot ar bankas pārskaitījumu, lūdzu, norādiet rēķina numuru!\n</p>\n{{ $('Paraksts').item.json.body.meta.apaksa }}\n</div>\n",
+        "options": {
+          "appendAttribution": false,
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {}
+            ]
+          }
+        }
+      },
+      "id": "ff5c808c-da7e-4092-9cb7-77bd20f94db7",
+      "name": "Client message1",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        3872,
+        1024
+      ],
+      "webhookId": "3976ca9a-ba9b-497a-a0e5-8e030db07966",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "i8yUhQAx74lvxr0z",
+          "name": "IR google"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const regex = /filename=\"([^\"]+)\"/;\nconst match = items[0].json[\"headers\"][\"content-disposition\"].match(regex);\n\nif ( match )  items[0].binary.data.fileName = match[1];\n\n\nreturn items;"
+      },
+      "id": "16ba63c0-b68a-4307-b7b2-d19da5f7fec8",
+      "name": "Code1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        3664,
+        1024
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "url": "=https://irekini.lv/api.php?r=invoices/company/find-company&access-token=8b7imvkmVIlvfntWNLN1IWs2AYtvZ-fJ&cId=16779&id={{ $('Start').item.json.customer_id}}",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "1657df42-b72f-48d2-9b37-baff37f80bc0",
+      "name": "Read Partner",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        2880,
+        1024
+      ],
+      "notesInFlow": true,
+      "disabled": true,
+      "notes": "CREATE PDF\n"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4ecbf1b1-bb53-4a3e-b33b-ef9e2a628e82",
+              "leftValue": "={{ $json.body.legal_type }}",
+              "rightValue": "Juridical person",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "d7c71317-23ff-4482-a899-dbd533bbe464",
+              "leftValue": "={{ $json.body.country_id }}",
+              "rightValue": 121,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3184,
+        1024
+      ],
+      "id": "07a89a4d-b3b3-4879-b2bc-e7dff3b5b337",
+      "name": "If",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://irekini.lv/api.php?r=invoices/invoice/get-next-invoice-number-documents&access-token=8b7imvkmVIlvfntWNLN1IWs2AYtvZ-fJ&cId=16779&documentIds=441-439&numberLength=4\n\n",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "id": "6f49075a-c3a4-4f0d-9140-8d14452a29b7",
+      "name": "invoice Number",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        1280,
+        272
+      ],
+      "notesInFlow": true,
+      "executeOnce": true,
+      "continueOnFail": true,
+      "notes": "POST new invoice advance"
     }
   ],
   "pinData": {},
@@ -1063,17 +1240,17 @@
       "main": [
         [
           {
-            "node": "Set6",
-            "type": "main",
-            "index": 0
-          },
-          {
             "node": "Client message",
             "type": "main",
             "index": 0
           },
           {
             "node": "Admin message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Set6",
             "type": "main",
             "index": 0
           }
@@ -1150,7 +1327,7 @@
       "main": [
         [
           {
-            "node": "invoice_new",
+            "node": "invoice Number",
             "type": "main",
             "index": 0
           }
@@ -1313,13 +1490,73 @@
           }
         ]
       ]
+    },
+    "Create Peppol": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Client message": {
+      "main": [
+        []
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Client message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Partner": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Create Peppol",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "invoice Number": {
+      "main": [
+        [
+          {
+            "node": "invoice_new",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "1e2ff8de-f134-4c0e-b507-90df704d3e54",
+  "versionId": "fde34eda-c646-4019-978e-b1e560c37c2c",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "0f064bae8ef402bc77bc2dfa9bf8ed7b60d49005d687ffae7941232c8a9d8d44"
