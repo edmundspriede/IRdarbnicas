@@ -3,30 +3,18 @@
   "nodes": [
     {
       "parameters": {},
-      "id": "6f986707-620e-4602-9888-a6fb793e513e",
-      "name": "When clicking \"Execute Workflow\"",
-      "type": "n8n-nodes-base.manualTrigger",
-      "typeVersion": 1,
-      "position": [
-        -840,
-        20
-      ],
-      "disabled": true
-    },
-    {
-      "parameters": {},
       "id": "1d30d579-08d3-4e18-a585-294c56198968",
       "name": "Start",
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1,
       "position": [
-        -820,
-        400
+        -896,
+        288
       ]
     },
     {
       "parameters": {
-        "url": "= https://irdarbnicas.lv/wp-json/wc/v3/orders/{{ $json.order_nr}}",
+        "url": "=https://irdarbnicas.lv/wp-json/wc/v3/orders/{{ $json.order_nr}}",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpBasicAuth",
         "options": {
@@ -44,8 +32,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
       "position": [
-        -360,
-        100
+        -496,
+        112
       ],
       "notesInFlow": true,
       "credentials": {
@@ -78,7 +66,7 @@
             },
             {
               "name": "puznemums",
-              "stringValue": "="
+              "stringValue": "={{ $jmespath($('Order1').item.json.body.meta_data , \"[?key == '_billing_uznemuma_nosaukms'].value\") }}"
             },
             {
               "name": "pdatums",
@@ -106,9 +94,138 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.1,
       "position": [
-        -480,
+        -496,
         400
       ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "body.line_items",
+        "options": {}
+      },
+      "id": "354dcae3-fe27-440f-9915-f424c7fccc4a",
+      "name": "Item Lists1",
+      "type": "n8n-nodes-base.itemLists",
+      "typeVersion": 3.1,
+      "position": [
+        -256,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "participants",
+              "type": "arrayValue",
+              "arrayValue": "={{ JSON.parse($jmespath($json.meta_data , \"[?key == 'Dalībnieki'].value\")) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "bf111b1e-0c78-446c-885e-d1ed0d0f2b08",
+      "name": "Edit Fields3",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.1,
+      "position": [
+        -16,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "participants",
+        "include": "allOtherFields",
+        "options": {}
+      },
+      "id": "75f0d828-fdfe-4636-9e0d-ea610543973d",
+      "name": "Item Lists2",
+      "type": "n8n-nodes-base.itemLists",
+      "typeVersion": 3.1,
+      "position": [
+        240,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Add a new field called 'myNewField' to the JSON of the item\nconst year =  $input.item.json.pdatums.split('-')[0];\nconst month =  $input.item.json.pdatums.split('-')[1];\n\n$input.item.json.pyear = year;\n$input.item.json.pmonth = month;\n\nreturn $input.item;"
+      },
+      "id": "14ad010e-fe0f-4397-9242-f1efc1e89e0a",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -16,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "puznemums",
+              "type": "arrayValue",
+              "arrayValue": "={{ $json.puznemums }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ac8dec97-2d9c-49fc-ad43-4420379bd01b",
+      "name": "Edit Fields2",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.1,
+      "position": [
+        -256,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3de589fa-f4e1-40e8-a3f2-ce050dbf3520",
+              "name": "order_nr",
+              "value": "5933",
+              "type": "string"
+            },
+            {
+              "id": "ef708f80-8423-4251-afbb-818a7466cf9a",
+              "name": "method",
+              "value": "Bank Transfer",
+              "type": "string"
+            },
+            {
+              "id": "f48dd3f9-4c5b-4540-9fc8-1c529b22c3f8",
+              "name": "invoice_nr",
+              "value": "IRI-24-A/0020",
+              "type": "string"
+            },
+            {
+              "id": "808d2332-8b8e-4fb7-aefc-7feab306a1bc",
+              "name": "sum",
+              "value": "90.00",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6012d5b9-c498-4b94-b669-770aae0b90a0",
+      "name": "Edit Fields1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        -768,
+        0
+      ],
+      "disabled": true
     },
     {
       "parameters": {
@@ -136,7 +253,7 @@
             "Pieteicēja vārds": "={{ $json.pvards }}",
             "Pieteicēja tālr. nr.": "={{ $json.ptelefons }}",
             "Pieteicēja e-pasts": "={{ $json.pemails }}",
-            "Uzņēmuma nosaukums": "={{ $('Start').item.json.customer_name }}",
+            "Uzņēmuma nosaukums": "={{ $json.puznemums[0] }}",
             "Pasūtījuma ID": "={{ $json.pnumurs }}",
             "Pasūtījuma datums": "={{ $json.pdatums }}",
             "Piezīmes": "={{ $json.pkomentars }}",
@@ -312,80 +429,29 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4,
       "position": [
-        40,
+        240,
         400
       ],
+      "retryOnFail": true,
+      "waitBetweenTries": 2000,
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "6OCPtYLn2JwWitAP",
-          "name": "Google Sheets account"
+          "name": "Google Sheets account EP"
         }
       }
     },
     {
-      "parameters": {
-        "fieldToSplitOut": "body.line_items",
-        "options": {}
-      },
-      "id": "354dcae3-fe27-440f-9915-f424c7fccc4a",
-      "name": "Item Lists1",
-      "type": "n8n-nodes-base.itemLists",
-      "typeVersion": 3.1,
+      "parameters": {},
+      "id": "6f986707-620e-4602-9888-a6fb793e513e",
+      "name": "When clicking \"Execute Workflow\"",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
       "position": [
-        -140,
-        100
-      ]
-    },
-    {
-      "parameters": {
-        "fields": {
-          "values": [
-            {
-              "name": "participants",
-              "type": "arrayValue",
-              "arrayValue": "={{ JSON.parse($jmespath($json.meta_data , \"[?key == 'Dalībnieki'].value\")) }}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "id": "bf111b1e-0c78-446c-885e-d1ed0d0f2b08",
-      "name": "Edit Fields3",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.1,
-      "position": [
-        100,
-        100
-      ]
-    },
-    {
-      "parameters": {
-        "fieldToSplitOut": "participants",
-        "include": "allOtherFields",
-        "options": {}
-      },
-      "id": "75f0d828-fdfe-4636-9e0d-ea610543973d",
-      "name": "Item Lists2",
-      "type": "n8n-nodes-base.itemLists",
-      "typeVersion": 3.1,
-      "position": [
-        340,
-        100
-      ]
-    },
-    {
-      "parameters": {
-        "mode": "runOnceForEachItem",
-        "jsCode": "// Add a new field called 'myNewField' to the JSON of the item\nconst year =  $input.item.json.pdatums.split('-')[0];\nconst month =  $input.item.json.pdatums.split('-')[1];\n\n$input.item.json.pyear = year;\n$input.item.json.pmonth = month;\n\nreturn $input.item;"
-      },
-      "id": "14ad010e-fe0f-4397-9242-f1efc1e89e0a",
-      "name": "Code",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        -200,
-        400
-      ]
+        -1024,
+        0
+      ],
+      "disabled": true
     }
   ],
   "pinData": {},
@@ -405,7 +471,7 @@
       "main": [
         [
           {
-            "node": "Code",
+            "node": "Edit Fields2",
             "type": "main",
             "index": 0
           }
@@ -466,13 +532,46 @@
           }
         ]
       ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Order1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking \"Execute Workflow\"": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "acac42b1-ec2d-4f8d-9831-dc44919949ae",
+  "versionId": "b944fc91-4881-47c4-a001-c9d345d9bbb8",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "0f064bae8ef402bc77bc2dfa9bf8ed7b60d49005d687ffae7941232c8a9d8d44"
