@@ -8,9 +8,10 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        -440,
-        120
-      ]
+        -448,
+        128
+      ],
+      "disabled": true
     },
     {
       "parameters": {},
@@ -19,13 +20,13 @@
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1,
       "position": [
-        -440,
-        420
+        -448,
+        432
       ]
     },
     {
       "parameters": {
-        "url": "= https://irdarbnicas.lv/wp-json/wc/v3/orders/{{ $json.order_nr }}",
+        "url": "=https://irdarbnicas.lv/wp-json/wc/v3/orders/{{ $json.order_nr }}",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpBasicAuth",
         "options": {
@@ -43,8 +44,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
       "position": [
-        -160,
-        280
+        -176,
+        288
       ],
       "notesInFlow": true,
       "credentials": {
@@ -73,7 +74,7 @@
           "values": [
             {
               "lookupColumn": "Pasūtījuma ID",
-              "lookupValue": "={{ $json.body.id }}"
+              "lookupValue": "={{ $('order').item.json.body.id }}"
             }
           ]
         },
@@ -86,13 +87,13 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4,
       "position": [
-        100,
-        280
+        288,
+        288
       ],
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "6OCPtYLn2JwWitAP",
-          "name": "Google Sheets account"
+          "name": "Google Sheets account EP"
         }
       }
     },
@@ -122,11 +123,10 @@
             "Pieteicēja vārds": "={{ $json['Pieteicēja vārds'] }}",
             "Pieteicēja tālr. nr.": "={{ $json['Pieteicēja tālr. nr.'] }}",
             "Pieteicēja e-pasts": "={{ $json['Pieteicēja e-pasts'] }}",
-            "Uzņēmuma nosaukums": "={{ $json['Uzņēmuma nosaukums'] }}",
             "Pasūtījuma ID": "={{ $('order').item.json.body.id }}",
-            "Pasūtījuma datums": "=",
+            "Pasūtījuma datums": "={{ $json['Pasūtījuma datums'] }}",
             "Piezīmes": "={{ $json.Piezīmes }}",
-            "Rēķina Nr.": "={{ $jmespath($('order').item.json.body.meta_data , \"[?key == 'invoice_full'].value\") }}",
+            "Rēķina Nr.": "={{ $('Edit Fields').item.json.invoicenr[0] }}",
             "Pieteicēja uzvārds": "={{ $json['Pieteicēja uzvārds'] }}",
             "row_number": "={{ $json.row_number }}"
           },
@@ -231,7 +231,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": true
             },
             {
               "id": "Rēķina summa",
@@ -290,15 +291,38 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4,
       "position": [
-        380,
-        280
+        560,
+        288
       ],
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "6OCPtYLn2JwWitAP",
-          "name": "Google Sheets account"
+          "name": "Google Sheets account EP"
         }
       }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c7f2fd48-b5f7-43ea-b641-29e62e24e898",
+              "name": "invoicenr",
+              "value": "={{ $jmespath($('order').item.json.body.meta_data , \"[?key == 'invoice_full'].value\") }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "326b7a47-1f78-4ca8-b51e-5c5db30bac2f",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        48,
+        288
+      ]
     }
   ],
   "pinData": {},
@@ -329,7 +353,7 @@
       "main": [
         [
           {
-            "node": "Google Sheets",
+            "node": "Edit Fields",
             "type": "main",
             "index": 0
           }
@@ -346,17 +370,29 @@
           }
         ]
       ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "5ed25dfa-c8b7-4336-a02b-cde151b093ff",
-  "id": "qNtCaGEYMvmhcyEG",
+  "versionId": "73c16d15-66a5-4ba3-a83d-918f8760b32d",
   "meta": {
+    "templateCredsSetupCompleted": true,
     "instanceId": "0f064bae8ef402bc77bc2dfa9bf8ed7b60d49005d687ffae7941232c8a9d8d44"
   },
+  "id": "qNtCaGEYMvmhcyEG",
   "tags": [
     {
       "createdAt": "2023-08-10T06:09:50.889Z",
